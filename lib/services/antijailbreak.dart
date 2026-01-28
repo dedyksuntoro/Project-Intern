@@ -97,9 +97,7 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
       print('--------------------------------------');
       print('-> Apakah Jailbroken/Root? : ${details['isJailBroken']}');
       print('-> Apakah Device Asli?     : ${details['isRealDevice']}');
-      // --- PERUBAHAN DI SINI ---
       print('-> Apakah Mode Dev Aktif?  : ${details['isDevelopmentModeEnable']} (NOTE: Pengecekan ini dinonaktifkan di logic isDeviceSecure)'); // Log diubah
-      // --- AKHIR PERUBAHAN ---
       print('--------------------------------------');
       print('HASIL AKHIR: Perangkat Aman? -> $isSecure');
       print('======================================');
@@ -169,14 +167,13 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                // --- PERUBAHAN DI SINI ---
+
                 const Text(
                   // Pesan diubah, "mode pengembang" dihapus
                   'Aplikasi tidak dapat berjalan pada perangkat yang terdeteksi tidak aman (root atau jailbreak).',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16),
                 ),
-                // --- AKHIR PERUBAHAN ---
                 const SizedBox(height: 8),
                 Text(
                   'Hal ini dilakukan untuk melindungi keamanan data Anda.',
@@ -211,12 +208,10 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
                           'Real Device: ${_securityDetails!['isRealDevice'] == true ? "Ya" : "Tidak"}',
                           style: TextStyle(fontSize: 13, color: _securityDetails!['isRealDevice'] == false ? Colors.red : Colors.green),
                         ),
-                        // --- PERUBAHAN DI SINI ---
                         Text(
                           'Developer Mode: ${_securityDetails!['isDevelopmentModeEnable'] == true ? "Aktif" : "Tidak"} (DIABAIKAN)',
                           style: TextStyle(fontSize: 13, color: _securityDetails!['isDevelopmentModeEnable'] == true ? Colors.orange : Colors.green),
                         ),
-                        // --- AKHIR PERUBAHAN ---
                       ],
                     ),
                   ),
