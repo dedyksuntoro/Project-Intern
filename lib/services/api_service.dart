@@ -50,11 +50,13 @@ class ApiService {
 
   Future<Map<String, dynamic>> login(String username, String password) async {
     try {
-      final response = await http.post(
-        Uri.parse('$_baseUrl/auth'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({"username": username, "password": password}),
-      ).timeout(const Duration(seconds: 15));
+      final response = await http
+          .post(
+            Uri.parse('$_baseUrl/auth'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({"username": username, "password": password}),
+          )
+          .timeout(const Duration(seconds: 15));
 
       final data = jsonDecode(response.body);
 
@@ -81,10 +83,12 @@ class ApiService {
       return data;
     } on SocketException {
       throw Exception(
-          'KONEKSI_GAGAL: Tidak dapat terhubung ke server. Periksa koneksi internet Anda.');
+        'KONEKSI_GAGAL: Tidak dapat terhubung ke server. Periksa koneksi internet Anda.',
+      );
     } on TimeoutException {
       throw Exception(
-          'TIMEOUT_GAGAL: Permintaan melebihi batas waktu 15 detik. Sinyal mungkin buruk.');
+        'TIMEOUT_GAGAL: Permintaan melebihi batas waktu 15 detik. Sinyal mungkin buruk.',
+      );
     } catch (e) {
       throw Exception('Terjadi kesalahan: ${e.toString()}');
     }
@@ -110,8 +114,10 @@ class ApiService {
     );
   }
 
-  Future<void> updateUserProfile(
-      {required String nama, required String telp}) async {
+  Future<void> updateUserProfile({
+    required String nama,
+    required String telp,
+  }) async {
     final token = await getToken();
     if (token == null) throw Exception('Sesi tidak valid.');
 
@@ -142,11 +148,13 @@ class ApiService {
 
     final request = http.MultipartRequest('POST', Uri.parse('$_baseUrl/photo'))
       ..headers['Authorization'] = 'Bearer $token'
-      ..files.add(await http.MultipartFile.fromPath(
-        'file',
-        photo.path,
-        contentType: mediaType,
-      ));
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          photo.path,
+          contentType: mediaType,
+        ),
+      );
 
     final streamedResponse = await request.send();
     final response = await http.Response.fromStream(streamedResponse);
@@ -215,7 +223,8 @@ class ApiService {
       return karyawanFromJson(response.body);
     } else {
       throw Exception(
-          'Gagal memuat data karyawan. Status: ${response.statusCode}');
+        'Gagal memuat data karyawan. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -229,7 +238,9 @@ class ApiService {
     if (response.statusCode == 200) {
       return sopirFromJson(response.body);
     } else {
-      throw Exception('Gagal memuat data sopir. Status: ${response.statusCode}');
+      throw Exception(
+        'Gagal memuat data sopir. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -238,15 +249,19 @@ class ApiService {
   Future<List<KendaraanHistory>> fetchKendaraanHistory() async {
     final token = await getToken();
     if (token == null) throw Exception('Token tidak ditemukan.');
-    final response = await http.get(Uri.parse('$_baseUrl/kendaraan'), headers: {
-      'Authorization': 'Bearer $token',
-      'Content-Type': 'application/json'
-    });
+    final response = await http.get(
+      Uri.parse('$_baseUrl/kendaraan'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
     if (response.statusCode == 200) {
       return kendaraanHistoryFromJson(response.body);
     } else {
       throw Exception(
-          'Gagal memuat riwayat kendaraan. Status: ${response.statusCode}');
+        'Gagal memuat riwayat kendaraan. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -300,7 +315,7 @@ class ApiService {
       Uri.parse('$_baseUrl/kendaraan'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -309,8 +324,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menyimpan data. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menyimpan data. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -386,7 +403,7 @@ class ApiService {
       Uri.parse('$_baseUrl/kendaraan'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -395,8 +412,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menyimpan data. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menyimpan data. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -440,7 +459,7 @@ class ApiService {
       Uri.parse('$_baseUrl/kendaraan'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payload),
     );
@@ -451,10 +470,12 @@ class ApiService {
       try {
         final errorBody = jsonDecode(response.body);
         throw Exception(
-            'Error dari server (${response.statusCode}): ${errorBody['message']}');
+          'Error dari server (${response.statusCode}): ${errorBody['message']}',
+        );
       } catch (_) {
         throw Exception(
-            'Gagal memperbarui data. Status: ${response.statusCode}');
+          'Gagal memperbarui data. Status: ${response.statusCode}',
+        );
       }
     }
   }
@@ -480,11 +501,13 @@ class ApiService {
         return data;
       } else {
         throw Exception(
-            data['message'] ?? 'Gagal menghapus riwayat kendaraan.');
+          data['message'] ?? 'Gagal menghapus riwayat kendaraan.',
+        );
       }
     } else {
       throw Exception(
-          'Gagal menghapus riwayat kendaraan. Status: ${response.statusCode}');
+        'Gagal menghapus riwayat kendaraan. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -503,7 +526,8 @@ class ApiService {
       return tamuHistoryFromJson(response.body);
     } else {
       throw Exception(
-          'Gagal memuat riwayat tamu. Status: ${response.statusCode}');
+        'Gagal memuat riwayat tamu. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -515,7 +539,8 @@ class ApiService {
     List<File> foto = const [],
   }) async {
     final token = await getToken();
-    if (token == null) throw Exception('Sesi tidak valid. Silakan login ulang.');
+    if (token == null)
+      throw Exception('Sesi tidak valid. Silakan login ulang.');
 
     List<int> attachmentIds = [];
     for (var file in foto) {
@@ -539,7 +564,7 @@ class ApiService {
       Uri.parse('$_baseUrl/tamu'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: payload,
     );
@@ -549,8 +574,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menyimpan data tamu. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menyimpan data tamu. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -574,12 +601,15 @@ class ApiService {
       if (data['status'] == true) {
         return data;
       } else {
-        throw Exception(data['message'] ??
-            'Gagal menghapus riwayat tamu. Status: ${response.statusCode}');
+        throw Exception(
+          data['message'] ??
+              'Gagal menghapus riwayat tamu. Status: ${response.statusCode}',
+        );
       }
     } else {
       throw Exception(
-          'Gagal menghapus riwayat tamu. Status: ${response.statusCode}');
+        'Gagal menghapus riwayat tamu. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -596,8 +626,9 @@ class ApiService {
     if (id != null) queryParams['id'] = id.toString();
     if (jenis != null) queryParams['jenis'] = jenis;
 
-    final uri =
-        Uri.parse('$_baseUrl/sterima').replace(queryParameters: queryParams);
+    final uri = Uri.parse(
+      '$_baseUrl/sterima',
+    ).replace(queryParameters: queryParams);
 
     final response = await http.get(
       uri,
@@ -608,7 +639,8 @@ class ApiService {
       return serahTerimaHistoryFromJson(response.body);
     } else {
       throw Exception(
-          'Gagal memuat riwayat serah terima. Status: ${response.statusCode}');
+        'Gagal memuat riwayat serah terima. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -620,7 +652,8 @@ class ApiService {
     String? keterangan,
   }) async {
     final token = await getToken();
-    if (token == null) throw Exception('Sesi tidak valid. Silakan login ulang.');
+    if (token == null)
+      throw Exception('Sesi tidak valid. Silakan login ulang.');
 
     List<int> attachmentIds = [];
     for (var file in attachments) {
@@ -646,7 +679,7 @@ class ApiService {
       Uri.parse('$_baseUrl/sterima'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -656,8 +689,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menyimpan data dokumen. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menyimpan data dokumen. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -668,7 +703,8 @@ class ApiService {
     String? keterangan,
   }) async {
     final token = await getToken();
-    if (token == null) throw Exception('Sesi tidak valid. Silakan login ulang.');
+    if (token == null)
+      throw Exception('Sesi tidak valid. Silakan login ulang.');
 
     List<int> attachmentIds = [];
     for (var file in attachments) {
@@ -694,7 +730,7 @@ class ApiService {
       Uri.parse('$_baseUrl/sterima'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -704,8 +740,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menyimpan data SIM. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menyimpan data SIM. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -755,7 +793,7 @@ class ApiService {
       Uri.parse('$_baseUrl/sterima'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -790,11 +828,13 @@ class ApiService {
         return data;
       } else {
         throw Exception(
-            data['message'] ?? 'Gagal menghapus riwayat serah terima.');
+          data['message'] ?? 'Gagal menghapus riwayat serah terima.',
+        );
       }
     } else {
       throw Exception(
-          'Gagal menghapus riwayat serah terima. Status: ${response.statusCode}');
+        'Gagal menghapus riwayat serah terima. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -813,7 +853,8 @@ class ApiService {
       return jsonDecode(response.body) as List<dynamic>;
     } else {
       throw Exception(
-          'Gagal memuat riwayat tugas umum. Status: ${response.statusCode}');
+        'Gagal memuat riwayat tugas umum. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -826,7 +867,8 @@ class ApiService {
     List<File> foto = const [],
   }) async {
     final token = await getToken();
-    if (token == null) throw Exception('Sesi tidak valid. Silakan login ulang.');
+    if (token == null)
+      throw Exception('Sesi tidak valid. Silakan login ulang.');
 
     List<int> attachmentIds = [];
     for (var file in foto) {
@@ -861,7 +903,7 @@ class ApiService {
       Uri.parse('$_baseUrl/tumum'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -871,8 +913,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menyimpan tugas umum. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menyimpan tugas umum. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -929,7 +973,7 @@ class ApiService {
       Uri.parse('$_baseUrl/tumum'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -939,8 +983,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal memperbarui tugas umum. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal memperbarui tugas umum. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -952,7 +998,7 @@ class ApiService {
       Uri.parse('$_baseUrl/tumum'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode({"id": id}),
     );
@@ -962,8 +1008,10 @@ class ApiService {
     if (response.statusCode == 200 && responseBody['status'] == true) {
       return responseBody;
     } else {
-      throw Exception(responseBody['message'] ??
-          'Gagal menghapus tugas umum. Status: ${response.statusCode}');
+      throw Exception(
+        responseBody['message'] ??
+            'Gagal menghapus tugas umum. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -998,7 +1046,7 @@ class ApiService {
       Uri.parse('$_baseUrl/tumum'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payload),
     );
@@ -1009,7 +1057,8 @@ class ApiService {
       return;
     } else {
       throw Exception(
-          responseBody['message'] ?? 'Gagal update status selesai.');
+        responseBody['message'] ?? 'Gagal update status selesai.',
+      );
     }
   }
 
@@ -1030,7 +1079,8 @@ class ApiService {
       return data.map((json) => Cabang.fromJson(json)).toList();
     } else {
       throw Exception(
-          'Gagal memuat data cabang. Status: ${response.statusCode}');
+        'Gagal memuat data cabang. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -1072,7 +1122,8 @@ class ApiService {
       return data.map((json) => ObTugas.fromJson(json)).toList();
     } else {
       throw Exception(
-          'Gagal memuat master tugas. Status: ${response.statusCode}');
+        'Gagal memuat master tugas. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -1090,7 +1141,8 @@ class ApiService {
       return jsonDecode(response.body) as List<dynamic>;
     } else {
       throw Exception(
-          'Gagal memuat riwayat tugas OB. Status: ${response.statusCode}');
+        'Gagal memuat riwayat tugas OB. Status: ${response.statusCode}',
+      );
     }
   }
 
@@ -1135,7 +1187,7 @@ class ApiService {
       Uri.parse('$_baseUrl/obt'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -1192,7 +1244,7 @@ class ApiService {
       Uri.parse('$_baseUrl/obt'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode(payloadMap),
     );
@@ -1215,7 +1267,7 @@ class ApiService {
       Uri.parse('$_baseUrl/obt'),
       headers: {
         'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: jsonEncode({"id": id}),
     );
@@ -1240,11 +1292,13 @@ class ApiService {
     final request = http.MultipartRequest('POST', uri)
       ..headers['Authorization'] = 'Bearer $token'
       ..fields['type'] = type
-      ..files.add(await http.MultipartFile.fromPath(
-        'file',
-        file.path,
-        contentType: mediaType,
-      ));
+      ..files.add(
+        await http.MultipartFile.fromPath(
+          'file',
+          file.path,
+          contentType: mediaType,
+        ),
+      );
 
     try {
       final streamedResponse = await request.send();

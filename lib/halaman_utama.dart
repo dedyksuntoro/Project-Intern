@@ -6,9 +6,11 @@ import 'riwayat/view/halaman_riwayat.dart';
 import 'truk/view/halaman_truk.dart';
 import 'profile/halaman_profil.dart';
 import 'dokumen/halaman_dokumen.dart';
-import 'sim/halaman_sim.dart'; 
+import 'Sim/halaman_sim.dart';
 import '../tugas umum/view/laporan_tugas_umum_page.dart';
-import 'tugas Ob/view/tugas_ob_page.dart'; 
+import 'tugas Ob/view/tugas_ob_page.dart';
+
+import 'services/update_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,6 +27,23 @@ class _HomeScreenState extends State<HomeScreen> {
     const HistoryScreen(),
     const ProfileScreen(),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _checkForUpdate();
+  }
+
+  Future<void> _checkForUpdate() async {
+    // Check for update after build, with a slight delay to ensure UI is ready
+    // and avoid blocking the main thread during initial rendering.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(seconds: 3));
+      if (mounted) {
+        UpdateService().checkForUpdate(context);
+      }
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -104,7 +123,7 @@ class HalamanBeranda extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: PreferredSize(
-        // Tinggi header dibuat dinamis 
+        // Tinggi header dibuat dinamis
         preferredSize: Size.fromHeight(screenHeight * 0.22),
         child: Container(
           decoration: const BoxDecoration(
@@ -155,7 +174,7 @@ class HalamanBeranda extends StatelessWidget {
                     ],
                   ),
 
-                  // Header Teks Selamat Datang 
+                  // Header Teks Selamat Datang
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -177,7 +196,7 @@ class HalamanBeranda extends StatelessWidget {
                         child: Text(
                           'Pilih Menu Operasional',
                           style: GoogleFonts.poppins(
-                            fontSize: 24, 
+                            fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -201,9 +220,7 @@ class HalamanBeranda extends StatelessWidget {
             color: Colors.orange,
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (context) => const GuestMenuScreen(),
-              ),
+              MaterialPageRoute(builder: (context) => const GuestMenuScreen()),
             ),
           ),
           const SizedBox(height: 16),
@@ -239,7 +256,8 @@ class HalamanBeranda extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const DocumentHandoverScreen()),
+                builder: (context) => const DocumentHandoverScreen(),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -251,7 +269,8 @@ class HalamanBeranda extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const SimHandoverScreen()),
+                builder: (context) => const SimHandoverScreen(),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -263,7 +282,8 @@ class HalamanBeranda extends StatelessWidget {
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => const LaporanTugasUmumPage()),
+                builder: (context) => const LaporanTugasUmumPage(),
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -274,8 +294,7 @@ class HalamanBeranda extends StatelessWidget {
             color: const Color.fromARGB(255, 177, 35, 101),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => const TugasObPage()),
+              MaterialPageRoute(builder: (context) => const TugasObPage()),
             ),
           ),
         ],

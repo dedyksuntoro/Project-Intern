@@ -1,4 +1,4 @@
-package com.example.pabrik_app
+package com.it.mppm_general_affair
 
 import io.flutter.embedding.android.FlutterActivity
 

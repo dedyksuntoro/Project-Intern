@@ -8,12 +8,10 @@ class SecurityService {
   static Future<bool> isDeviceSecure() async {
     try {
       bool isJailBroken = await SafeDevice.isJailBroken;
-      bool isRealDevice = await SafeDevice.isRealDevice;
-      
-     
-      return isRealDevice && !isJailBroken; // && !isDevelopmentModeEnable;
+      // bool isRealDevice = await SafeDevice.isRealDevice;
 
-
+      // return isRealDevice && !isJailBroken; // && !isDevelopmentModeEnable;
+      return !isJailBroken; // && !isDevelopmentModeEnable;
     } catch (e) {
       if (kDebugMode) {
         print('Error checking device security: $e');
@@ -43,12 +41,13 @@ class SecurityService {
     }
   }
 
-
   static Future<bool> isMockLocationActive() async {
     try {
       bool isMockLocation = await SafeDevice.isMockLocation;
       if (kDebugMode) {
-        print('-> Pengecekan Mock Location / Fake GPS Aktif? : $isMockLocation');
+        print(
+          '-> Pengecekan Mock Location / Fake GPS Aktif? : $isMockLocation',
+        );
       }
       return isMockLocation;
     } catch (e) {
@@ -97,7 +96,9 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
       print('--------------------------------------');
       print('-> Apakah Jailbroken/Root? : ${details['isJailBroken']}');
       print('-> Apakah Device Asli?     : ${details['isRealDevice']}');
-      print('-> Apakah Mode Dev Aktif?  : ${details['isDevelopmentModeEnable']} (NOTE: Pengecekan ini dinonaktifkan di logic isDeviceSecure)'); // Log diubah
+      print(
+        '-> Apakah Mode Dev Aktif?  : ${details['isDevelopmentModeEnable']} (NOTE: Pengecekan ini dinonaktifkan di logic isDeviceSecure)',
+      ); // Log diubah
       print('--------------------------------------');
       print('HASIL AKHIR: Perangkat Aman? -> $isSecure');
       print('======================================');
@@ -132,10 +133,7 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
               SizedBox(height: 20),
               Text(
                 'Memeriksa keamanan perangkat...',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF001f3f),
-                ),
+                style: TextStyle(fontSize: 16, color: Color(0xFF001f3f)),
               ),
             ],
           ),
@@ -152,11 +150,7 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.shield_outlined,
-                  size: 80,
-                  color: Colors.red,
-                ),
+                const Icon(Icons.shield_outlined, size: 80, color: Colors.red),
                 const SizedBox(height: 24),
                 const Text(
                   'Peringatan Keamanan',
@@ -202,15 +196,32 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
                         const SizedBox(height: 8),
                         Text(
                           'Jailbroken/Root: ${_securityDetails!['isJailBroken'] == true ? "Ya" : "Tidak"}',
-                          style: TextStyle(fontSize: 13, color: _securityDetails!['isJailBroken'] == true ? Colors.red : Colors.green),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: _securityDetails!['isJailBroken'] == true
+                                ? Colors.red
+                                : Colors.green,
+                          ),
                         ),
                         Text(
                           'Real Device: ${_securityDetails!['isRealDevice'] == true ? "Ya" : "Tidak"}',
-                          style: TextStyle(fontSize: 13, color: _securityDetails!['isRealDevice'] == false ? Colors.red : Colors.green),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: _securityDetails!['isRealDevice'] == false
+                                ? Colors.red
+                                : Colors.green,
+                          ),
                         ),
                         Text(
                           'Developer Mode: ${_securityDetails!['isDevelopmentModeEnable'] == true ? "Aktif" : "Tidak"} (DIABAIKAN)',
-                          style: TextStyle(fontSize: 13, color: _securityDetails!['isDevelopmentModeEnable'] == true ? Colors.orange : Colors.green),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color:
+                                _securityDetails!['isDevelopmentModeEnable'] ==
+                                    true
+                                ? Colors.orange
+                                : Colors.green,
+                          ),
                         ),
                       ],
                     ),
@@ -222,7 +233,10 @@ class _SecurityCheckScreenState extends State<SecurityCheckScreen> {
                   onPressed: () => exit(0),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
                   ),
                   label: const Text(
                     'Keluar Aplikasi',

@@ -2,7 +2,7 @@ name: pabrik_app
 description: "A new Flutter project."
 publish_to: 'none'
 
-version: 1.2.0+3
+version: 1.3.0+4
 
 environment:
   sdk: ^3.8.1
@@ -35,6 +35,10 @@ dependencies:
   image_cropper: ^8.0.2
   flutter_typeahead: ^5.2.0
   flutter_native_splash: ^2.4.7
+  package_rename: ^1.10.1
+  ota_update: ^7.1.0
+  package_info_plus: ^9.0.0
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
@@ -46,6 +50,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/logo-mppm.png
     - assets/logo.png
     - assets/background_login.png
     - assets/watermark.png
@@ -54,12 +59,22 @@ flutter:
     - assets/icon_app.png
     - .env
 
+package_rename_config:
+  android:
+    app_name: "MPPM General Affair" # Display name
+    package_name: "com.it.mppm_general_affair" # Package name
+    override_old_package: "com.example.pabrik_app" # Optional: Cleans up old folder structure
+    lang: "kotlin" # Optional: "kotlin" (default) or "java"
+
+  ios:
+    app_name: "MPPM General Affair" # Display name
+    bundle_name: "MPPM General Affair" # Bundle name
+    package_name: "com.it.mppm_general_affair" # Product Bundle Identifier
+
 flutter_launcher_icons:
+  image_path: 'assets/logo-mppm.png'
   android: true
-  ios: false
-  image_path: "assets/icon_app.png"
-  adaptive_icon_foreground: "assets/icon_app.png"
-  adaptive_icon_background: "#FFFFFF"
+  ios: true
 
 flutter_native_splash:
   color: "#1A237E"

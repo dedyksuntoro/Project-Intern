@@ -15,12 +15,13 @@ if (localPropertiesFile.exists()) {
 }
 
 android {
-    namespace = "com.example.pabrik_app" // Sesuaikan dengan nama paket Anda
-    compileSdk = 35 // Diubah ke 35 untuk mengatasi warning
+    namespace = "com.it.mppm_general_affair" // Sesuaikan dengan nama paket Anda
+    compileSdk = 36 // Diubah ke 35 untuk mengatasi warning
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -28,9 +29,9 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.pabrik_app" // Sesuaikan dengan nama paket Anda
-        minSdk = 21
-        targetSdk = 35 // Sesuaikan dengan compileSdk
+        applicationId = "com.it.mppm_general_affair" // Sesuaikan dengan nama paket Anda
+        minSdk = 24
+        targetSdk = 36 // Sesuaikan dengan compileSdk
         versionCode = (localProperties.getProperty("flutter.versionCode") ?: "1").toInt()
         versionName = localProperties.getProperty("flutter.versionName")
     }
@@ -47,5 +48,5 @@ flutter {
 }
 
 dependencies {
-    // Tidak perlu ada tambahan di sini untuk kasus kita
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
