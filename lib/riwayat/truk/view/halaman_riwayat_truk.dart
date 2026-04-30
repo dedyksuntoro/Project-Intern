@@ -4,9 +4,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:photo_view/photo_view.dart';
 import '../../../models/armada.dart';
-import '../../../models/sopir.dart'; 
+import '../../../models/sopir.dart';
 import '../../../models/kendaraan_history.dart';
 import '../../../widgets/widget_riwayat_item.dart';
+import '../../../widgets/image_gallery_viewer.dart';
 import '../bloc/truk_history_bloc.dart';
 
 class HalamanRiwayatTruk extends StatelessWidget {
@@ -90,12 +91,13 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
     if (code == 'A') return 'Ada';
     if (code == 'M') return 'Mati';
     if (code == 'T') return 'Tidak Ada';
+    if (code == 'FC') return 'Foto Copy';
     return '-';
   }
 
   // Helper untuk mendapatkan nama sopir (API String atau Lookup ID)
   String _getSopirName(KendaraanHistory item, Map<String, String> sopirMap) {
-    // Cek API sudah mengirimkan nama 
+    // Cek API sudah mengirimkan nama
     if (item.sopir != null && item.sopir!.isNotEmpty) {
       return item.sopir!;
     }
@@ -106,34 +108,9 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
   }
 
   void _showImageGallery(BuildContext context, List<String> imageUrls) {
-    Navigator.push(
-      context,
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            iconTheme: const IconThemeData(color: Colors.white),
-            title: Text('Lampiran',
-                style: GoogleFonts.poppins(color: Colors.white)),
-          ),
-          body: PageView.builder(
-            itemCount: imageUrls.length,
-            itemBuilder: (context, index) {
-              return PhotoView(
-                imageProvider: NetworkImage(imageUrls[index]),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 2,
-                loadingBuilder: (context, event) => const Center(
-                    child: CircularProgressIndicator(color: Colors.white)),
-                errorBuilder: (context, error, stackTrace) => const Center(
-                    child: Icon(Icons.broken_image,
-                        color: Colors.grey, size: 50)),
-              );
-            },
-          ),
-        ),
+        builder: (context) => ImageGalleryScreen(imageUrls: imageUrls),
       ),
     );
   }
@@ -159,26 +136,32 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
                   Text(
                     'Gagal Terhubung',
                     style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600]),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 40.0, vertical: 8.0),
+                      horizontal: 40.0,
+                      vertical: 8.0,
+                    ),
                     child: Text(
                       state.errorMessage ?? 'Terjadi kesalahan koneksi.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                          fontSize: 16, color: Colors.grey[500]),
+                        fontSize: 16,
+                        color: Colors.grey[500],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.refresh),
-                    label: Text('Coba Lagi',
-                        style:
-                            GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                    label: Text(
+                      'Coba Lagi',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                    ),
                     onPressed: () {
                       context.read<TrukHistoryBloc>().add(TrukHistoryFetched());
                     },
@@ -189,7 +172,9 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -198,8 +183,11 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
           }
 
           // Pass list sopir ke filter
-          final filteredListBySearch =
-              _filterList(state.historyList, state.armadaList, state.sopirList);
+          final filteredListBySearch = _filterList(
+            state.historyList,
+            state.armadaList,
+            state.sopirList,
+          );
 
           final List<KendaraanHistory> filteredList;
           if (widget.selectedDate != null) {
@@ -211,7 +199,8 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
           }
 
           if (filteredList.isEmpty) {
-            bool isSearching = widget.searchController.text.isNotEmpty ||
+            bool isSearching =
+                widget.searchController.text.isNotEmpty ||
                 widget.selectedDate != null;
             return _buildEmptyList(isSearching);
           }
@@ -239,30 +228,34 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
 
   // Update signature untuk menerima list sopir
   List<KendaraanHistory> _filterList(
-      List<KendaraanHistory> history, List<Armada> armada, List<Sopir> sopirList) {
+    List<KendaraanHistory> history,
+    List<Armada> armada,
+    List<Sopir> sopirList,
+  ) {
     final query = widget.searchController.text.toLowerCase();
     final listByTruk = history.where((item) => item.inventaris == 'N').toList();
 
     if (query.isEmpty) return listByTruk;
 
     final Map<String, String> armadaMap = {
-      for (var item in armada) item.id: item.nopol
+      for (var item in armada) item.id: item.nopol,
     };
 
     // Buat Map ID Sopir -> Nama Sopir untuk lookup cepat
     final Map<String, String> sopirMap = {
-      for (var s in sopirList) s.id: s.nama
+      for (var s in sopirList) s.id: s.nama,
     };
 
     return listByTruk.where((item) {
       final nopol = armadaMap[item.idArmada.toString()]?.toLowerCase() ?? '';
-      
+
       // Gunakan helper logic yang sama untuk nama sopir
       final sopirName = _getSopirName(item, sopirMap).toLowerCase();
-      
-      final tanggal = DateFormat('dd MMM yyyy', 'id_ID')
-          .format(item.createdAt)
-          .toLowerCase();
+
+      final tanggal = DateFormat(
+        'dd MMM yyyy',
+        'id_ID',
+      ).format(item.createdAt).toLowerCase();
 
       return nopol.contains(query) ||
           sopirName.contains(query) ||
@@ -278,12 +271,12 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
     required int remainingCount,
   }) {
     final Map<String, String> armadaMap = {
-      for (var armada in armadaItems) armada.id: armada.nopol
+      for (var armada in armadaItems) armada.id: armada.nopol,
     };
 
     // Buat Map ID Sopir -> Nama untuk lookup di item widget
     final Map<String, String> sopirMap = {
-      for (var s in sopirItems) s.id: s.nama
+      for (var s in sopirItems) s.id: s.nama,
     };
 
     return ListView.builder(
@@ -308,8 +301,10 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
                 ),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.blue[700],
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   backgroundColor: Colors.blue[50],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -322,7 +317,7 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
 
         final item = historyItems[index];
         bool isMasuk = item.jenis == 'IN';
-        
+
         // GUNAKAN HELPER DISINI
         final String displayNameSopir = _getSopirName(item, sopirMap);
 
@@ -330,12 +325,12 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
           judulBaris1:
               armadaMap[item.idArmada.toString()] ?? 'Nopol tidak tersedia',
           judulBaris2: isMasuk ? 'Masuk' : 'Keluar',
-          
+
           // Ganti 'item.sopir' dengan 'displayNameSopir'
-          subJudul: displayNameSopir, 
-          
-          ikon: isMasuk ? Icons.login : Icons.logout,
-          warnaIkon: isMasuk ? Colors.blueAccent : Colors.green,
+          subJudul: displayNameSopir,
+
+          ikon: isMasuk ? Icons.download_rounded : Icons.upload_rounded,
+          warnaIkon: isMasuk ? Colors.green : Colors.red,
           waktu: DateFormat('HH:mm').format(item.createdAt),
           tanggal: DateFormat('dd MMM yyyy', 'id_ID').format(item.createdAt),
           itemKey: 'truk_${item.id}',
@@ -347,86 +342,121 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
               context: context,
               builder: (ctx) => AlertDialog(
                 title: Text('Konfirmasi Hapus', style: GoogleFonts.poppins()),
-                content: Text('Anda yakin ingin menghapus riwayat ini?',
-                    style: GoogleFonts.poppins()),
+                content: Text(
+                  'Anda yakin ingin menghapus riwayat ini?',
+                  style: GoogleFonts.poppins(),
+                ),
                 actions: [
                   TextButton(
-                      child: const Text('Batal'),
-                      onPressed: () => Navigator.of(ctx).pop(false)),
+                    child: const Text('Batal'),
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                  ),
                   TextButton(
-                      child: const Text('Hapus',
-                          style: TextStyle(color: Colors.red)),
-                      onPressed: () => Navigator.of(ctx).pop(true)),
+                    child: const Text(
+                      'Hapus',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                  ),
                 ],
               ),
             ).then((confirmed) {
               if (confirmed == true) {
-                context
-                    .read<TrukHistoryBloc>()
-                    .add(TrukHistoryDeleted(id: item.id));
+                context.read<TrukHistoryBloc>().add(
+                  TrukHistoryDeleted(id: item.id),
+                );
               }
             });
           },
           detailChildren: [
             if (item.kernet != null && item.kernet!.isNotEmpty) ...[
               buildDetailRow(
-                  icon: Icons.person,
-                  title: 'Nama Kernet',
-                  value: item.kernet!),
+                icon: Icons.person,
+                title: 'Nama Kernet',
+                value: item.kernet!,
+              ),
               const Divider(color: Colors.white24),
             ],
 
-             if (item.statusStnk != null) ...[
+            if (item.statusStnk != null) ...[
               buildDetailRow(
-                  icon: Icons.assignment_outlined,
-                  title: 'Status STNK',
-                  value: _translateStatus(item.statusStnk)),
+                icon: Icons.assignment_outlined,
+                title: 'Status STNK',
+                value: _translateStatus(item.statusStnk),
+              ),
               const Divider(color: Colors.white24),
             ],
             if (item.stnkTanggal != null) ...[
               buildDetailRow(
-                  icon: Icons.calendar_today,
-                  title: 'STNK Tanggal',
-                  value: DateFormat('dd MMM yyyy').format(item.stnkTanggal!)),
+                icon: Icons.calendar_today,
+                title: 'STNK Tanggal',
+                value: DateFormat('dd MMM yyyy').format(item.stnkTanggal!),
+              ),
               const Divider(color: Colors.white24),
             ],
             if (item.statusKir != null) ...[
               buildDetailRow(
-                  icon: Icons.assignment_turned_in_outlined,
-                  title: 'Status KIR',
-                  value: _translateStatus(item.statusKir)),
+                icon: Icons.assignment_turned_in_outlined,
+                title: 'Status KIR',
+                value: _translateStatus(item.statusKir),
+              ),
               const Divider(color: Colors.white24),
             ],
             if (item.kirTanggal != null) ...[
               buildDetailRow(
-                  icon: Icons.calendar_today,
-                  title: 'KIR Tanggal',
-                  value: DateFormat('dd MMM yyyy').format(item.kirTanggal!)),
+                icon: Icons.calendar_today,
+                title: 'Tanggal KIR',
+                value: DateFormat('dd MMM yyyy').format(item.kirTanggal!),
+              ),
               const Divider(color: Colors.white24),
             ],
+
+            
             if (item.kirBet != null && item.kirBet!.isNotEmpty) ...[
               buildDetailRow(
-                  icon: Icons.confirmation_number_outlined,
-                  title: 'KIR BET',
-                  value: item.kirBet!),
+                icon: Icons.confirmation_number_outlined,
+                title: 'KIR Bet',
+                value: item.kirBet!,
+              ),
               const Divider(color: Colors.white24),
             ],
+
+            if (item.statusKir != null) ...[
+              buildDetailRow(
+                icon: Icons.assignment_turned_in_outlined,
+                title: 'Status KIR Bet',
+                value: _translateStatus(item.statusKir),
+              ),
+              const Divider(color: Colors.white24),
+            ],
+            if (item.kirTanggal != null) ...[
+              buildDetailRow(
+                icon: Icons.calendar_today,
+                title: 'Tanggal KIR Bet',
+                value: DateFormat('dd MMM yyyy').format(item.kirTanggal!),
+              ),
+              const Divider(color: Colors.white24),
+            ],
+
             if (item.noLambung != null && item.noLambung!.isNotEmpty) ...[
               buildDetailRow(
-                  icon: Icons.looks_one_outlined,
-                  title: 'No. Lambung',
-                  value: item.noLambung!),
+                icon: Icons.looks_one_outlined,
+                title: 'No. Lambung',
+                value: item.noLambung!,
+              ),
               const Divider(color: Colors.white24),
             ],
             buildDetailRow(
-                icon: Icons.speed,
-                title: 'Kilometer',
-                value: '${item.kilometer.toStringAsFixed(0)} Km'),
+              icon: Icons.speed,
+              title: 'Kilometer',
+              value: '${item.kilometer.toStringAsFixed(0)} Km',
+            ),
             const Divider(color: Colors.white24),
             buildDetailRow(
-                icon: Icons.local_gas_station,
-                title: 'Sisa BBM',
-                value: '${item.bbm.round()}%'),
+              icon: Icons.local_gas_station,
+              title: 'Sisa BBM',
+              value: '${item.bbm.round()}%',
+            ),
             const Divider(color: Colors.white24),
             buildDetailRow(
               icon: item.statusArmada == 'Y'
@@ -440,25 +470,26 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
                 item.keteranganArmada!.isNotEmpty) ...[
               const Divider(color: Colors.white24),
               buildDetailRow(
-                  icon: Icons.comment_outlined,
-                  title: 'Keterangan Servis',
-                  value: item.keteranganArmada!),
+                icon: Icons.comment_outlined,
+                title: 'Keterangan Servis',
+                value: item.keteranganArmada!,
+              ),
             ],
             if (item.keterangan != null && item.keterangan!.isNotEmpty) ...[
               const Divider(color: Colors.white24),
               buildDetailRow(
-                  icon: Icons.notes_outlined,
-                  title: 'Keterangan Lain-Lain',
-                  value: item.keterangan!),
+                icon: Icons.notes_outlined,
+                title: 'Keterangan Lain-Lain',
+                value: item.keterangan!,
+              ),
             ],
           ],
         );
       },
     );
   }
-  
-  
-   Widget _buildEmptyList(bool isSearching) {
+
+  Widget _buildEmptyList(bool isSearching) {
     String title = isSearching ? 'Tidak Ditemukan' : 'Belum Ada Riwayat Truk';
     String message = isSearching
         ? 'Tidak ada data yang cocok dengan pencarian Anda.'
@@ -468,20 +499,27 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(isSearching ? Icons.search_off : Icons.history_toggle_off,
-              size: 80, color: Colors.grey[400]),
+          Icon(
+            isSearching ? Icons.search_off : Icons.history_toggle_off,
+            size: 80,
+            color: Colors.grey[400],
+          ),
           const SizedBox(height: 16),
-          Text(title,
-              style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600])),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Text(message,
-                textAlign: TextAlign.center,
-                style:
-                    GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500])),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500]),
+            ),
           ),
         ],
       ),

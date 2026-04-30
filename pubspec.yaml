@@ -55,6 +55,8 @@ flutter:
     - assets/background_login.png
     - assets/watermark.png
     - assets/profile_bg.png
+    - assets/header_abstract_bg.png
+    - assets/Hello-rafiki.png
     - assets/logo_splash.png
     - assets/icon_app.png
     - .env

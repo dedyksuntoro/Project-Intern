@@ -40,7 +40,7 @@ class WidgetRiwayatItem extends StatelessWidget {
     );
     final subJudulStyle = GoogleFonts.poppins(
       fontSize: 13,
-      color: Colors.white.withOpacity(0.8)
+      color: Colors.white.withOpacity(0.8),
     );
     final judul2Style = GoogleFonts.poppins(
       fontSize: 13,
@@ -125,7 +125,10 @@ class WidgetRiwayatItem extends StatelessWidget {
         children: [
           Container(
             color: Colors.black.withOpacity(0.15),
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 8.0,
+            ),
             child: Column(
               children: [
                 ...detailChildren,
@@ -133,12 +136,12 @@ class WidgetRiwayatItem extends StatelessWidget {
                   const Divider(color: Colors.white24),
                   Align(
                     alignment: Alignment.centerRight,
-                    child: Row( 
+                    child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (onLihatLampiran != null)
                           IconButton(
-                            icon: const Icon(Icons.visibility_outlined),
+                            icon: const Icon(Icons.image_rounded),
                             color: Colors.blueAccent,
                             tooltip: 'Lihat Lampiran',
                             onPressed: onLihatLampiran,
@@ -156,7 +159,7 @@ class WidgetRiwayatItem extends StatelessWidget {
                 ],
               ],
             ),
-          )
+          ),
         ],
       ),
     );
@@ -164,13 +167,21 @@ class WidgetRiwayatItem extends StatelessWidget {
 }
 
 // Fungsi pembantu untuk membuat baris detail dalam riwayat
-Widget buildDetailRow({required IconData icon, required String title, required String value}) {
+Widget buildDetailRow({
+  required IconData icon,
+  required String title,
+  required String value,
+}) {
   final titleStyle = GoogleFonts.poppins(color: Colors.white70);
-  final valueStyle = GoogleFonts.poppins(color: Colors.white, fontWeight: FontWeight.w600);
+  final valueStyle = GoogleFonts.poppins(
+    color: Colors.white,
+    fontWeight: FontWeight.w600,
+  );
 
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 8.0),
     child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(icon, color: Colors.white70, size: 20),
         const SizedBox(width: 16),
@@ -182,7 +193,7 @@ Widget buildDetailRow({required IconData icon, required String title, required S
             child: Text(
               value,
               style: valueStyle,
-              maxLines: 1,
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.right,
             ),

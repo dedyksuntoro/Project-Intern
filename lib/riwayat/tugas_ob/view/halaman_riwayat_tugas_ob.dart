@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../../../../widgets/widget_riwayat_item.dart';
+import '../../../../widgets/image_gallery_viewer.dart';
 import '../bloc/tugas_ob_history_bloc.dart';
 
 class HalamanRiwayatTugasOb extends StatelessWidget {
@@ -331,82 +332,6 @@ class _HalamanRiwayatTugasObViewState
                     GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500])),
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Reuse ImageGalleryScreen (Disertakan agar file mandiri)
-class ImageGalleryScreen extends StatefulWidget {
-  final List<String> imageUrls;
-  final int initialIndex;
-
-  const ImageGalleryScreen({
-    super.key,
-    required this.imageUrls,
-    this.initialIndex = 0,
-  });
-
-  @override
-  State<ImageGalleryScreen> createState() => _ImageGalleryScreenState();
-}
-
-class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
-  late int currentIndex;
-  late PageController _pageController;
-
-  @override
-  void initState() {
-    super.initState();
-    currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: widget.initialIndex);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          '${currentIndex + 1} dari ${widget.imageUrls.length}',
-          style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
-        ),
-        centerTitle: true,
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.imageUrls.length,
-        onPageChanged: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          return InteractiveViewer(
-            panEnabled: false,
-            minScale: 1.0,
-            maxScale: 4.0,
-            child: Center(
-              child: Image.network(
-                widget.imageUrls[index],
-                fit: BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(
-                      child: CircularProgressIndicator(color: Colors.white));
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                      child: Icon(Icons.broken_image,
-                          color: Colors.grey, size: 80));
-                },
-              ),
-            ),
-          );
-        },
       ),
     );
   }

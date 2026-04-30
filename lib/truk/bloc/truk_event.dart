@@ -37,8 +37,9 @@ class TrukDataSubmitted extends TrukEvent {
   final String statusSTNK; 
   final String stnkTanggal;
   final String statusKIR; 
+  final String statusKIRBet;
   final String kirTanggal;
-  final String kirBet;
+  final String kirTanggalBet;
   final String noLambung;
   final String kilometer;
   final double bbm;
@@ -55,8 +56,9 @@ class TrukDataSubmitted extends TrukEvent {
     required this.statusSTNK,
     required this.stnkTanggal,
     required this.statusKIR,
+    required this.statusKIRBet,
     required this.kirTanggal,
-    required this.kirBet,
+    required this.kirTanggalBet,
     required this.noLambung,
     required this.kilometer,
     required this.bbm,
@@ -75,8 +77,9 @@ class TrukDataSubmitted extends TrukEvent {
         statusSTNK,
         stnkTanggal,
         statusKIR,
+        statusKIRBet,
         kirTanggal,
-        kirBet,
+        kirTanggalBet,
         noLambung,
         kilometer,
         bbm,

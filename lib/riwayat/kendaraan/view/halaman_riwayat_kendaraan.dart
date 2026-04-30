@@ -7,6 +7,7 @@ import '../../../models/armada.dart';
 import '../../../models/karyawan.dart';
 import '../../../models/kendaraan_history.dart';
 import '../../../widgets/widget_riwayat_item.dart';
+import '../../../widgets/image_gallery_viewer.dart';
 import '../bloc/kendaraan_history_bloc.dart';
 
 class HalamanRiwayatKendaraan extends StatelessWidget {
@@ -87,34 +88,9 @@ class _HistoryListViewState extends State<_HistoryListView> {
   }
 
   void _showImageGallery(BuildContext context, List<String> imageUrls) {
-    Navigator.push(
-      context,
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => Scaffold(
-          backgroundColor: Colors.black,
-          appBar: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            iconTheme: const IconThemeData(color: Colors.white),
-            title: Text('Lampiran',
-                style: GoogleFonts.poppins(color: Colors.white)),
-          ),
-          body: PageView.builder(
-            itemCount: imageUrls.length,
-            itemBuilder: (context, index) {
-              return PhotoView(
-                imageProvider: NetworkImage(imageUrls[index]),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 2,
-                loadingBuilder: (context, event) => const Center(
-                    child: CircularProgressIndicator(color: Colors.white)),
-                errorBuilder: (context, error, stackTrace) => const Center(
-                    child: Icon(Icons.broken_image,
-                        color: Colors.grey, size: 50)),
-              );
-            },
-          ),
-        ),
+        builder: (context) => ImageGalleryScreen(imageUrls: imageUrls),
       ),
     );
   }
@@ -140,30 +116,36 @@ class _HistoryListViewState extends State<_HistoryListView> {
                   Text(
                     'Gagal Terhubung',
                     style: GoogleFonts.poppins(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600]),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[600],
+                    ),
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 40.0, vertical: 8.0),
+                      horizontal: 40.0,
+                      vertical: 8.0,
+                    ),
                     child: Text(
                       state.errorMessage ?? 'Terjadi kesalahan koneksi.',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.poppins(
-                          fontSize: 16, color: Colors.grey[500]),
+                        fontSize: 16,
+                        color: Colors.grey[500],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.refresh),
-                    label: Text('Coba Lagi',
-                        style:
-                            GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+                    label: Text(
+                      'Coba Lagi',
+                      style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+                    ),
                     onPressed: () {
-                      context
-                          .read<KendaraanHistoryBloc>()
-                          .add(KendaraanHistoryFetched());
+                      context.read<KendaraanHistoryBloc>().add(
+                        KendaraanHistoryFetched(),
+                      );
                     },
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
@@ -172,7 +154,9 @@ class _HistoryListViewState extends State<_HistoryListView> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                     ),
                   ),
                 ],
@@ -181,7 +165,10 @@ class _HistoryListViewState extends State<_HistoryListView> {
           }
 
           final filteredListBySearch = _filterList(
-              state.historyList, state.armadaList, state.karyawanList);
+            state.historyList,
+            state.armadaList,
+            state.karyawanList,
+          );
 
           final List<KendaraanHistory> filteredList;
           if (widget.selectedDate != null) {
@@ -193,7 +180,8 @@ class _HistoryListViewState extends State<_HistoryListView> {
           }
 
           if (filteredList.isEmpty) {
-            bool isSearching = widget.searchController.text.isNotEmpty ||
+            bool isSearching =
+                widget.searchController.text.isNotEmpty ||
                 widget.selectedDate != null;
             return _buildEmptyList(isSearching);
           }
@@ -203,9 +191,9 @@ class _HistoryListViewState extends State<_HistoryListView> {
 
           return RefreshIndicator(
             onRefresh: () async {
-              context
-                  .read<KendaraanHistoryBloc>()
-                  .add(KendaraanHistoryFetched());
+              context.read<KendaraanHistoryBloc>().add(
+                KendaraanHistoryFetched(),
+              );
               _resetLimit();
             },
             child: _buildHistoryList(
@@ -221,20 +209,24 @@ class _HistoryListViewState extends State<_HistoryListView> {
     );
   }
 
-  List<KendaraanHistory> _filterList(List<KendaraanHistory> history,
-      List<Armada> armada, List<Karyawan> karyawan) {
+  List<KendaraanHistory> _filterList(
+    List<KendaraanHistory> history,
+    List<Armada> armada,
+    List<Karyawan> karyawan,
+  ) {
     final query = widget.searchController.text.toLowerCase();
 
-    final listByInventaris =
-        history.where((item) => item.inventaris == 'Y').toList();
+    final listByInventaris = history
+        .where((item) => item.inventaris == 'Y')
+        .toList();
 
     if (query.isEmpty) return listByInventaris;
 
     final Map<String, String> armadaMap = {
-      for (var item in armada) item.id: item.nopol
+      for (var item in armada) item.id: item.nopol,
     };
     final Map<String, String> karyawanMap = {
-      for (var item in karyawan) item.id: item.nama
+      for (var item in karyawan) item.id: item.nama,
     };
 
     return listByInventaris.where((item) {
@@ -242,8 +234,9 @@ class _HistoryListViewState extends State<_HistoryListView> {
       final namaKaryawan =
           karyawanMap[item.idKaryawan.toString()]?.toLowerCase() ?? '';
 
-      final tanggal =
-          DateFormat('dd MMM yyyy').format(item.createdAt).toLowerCase();
+      final tanggal = DateFormat(
+        'dd MMM yyyy',
+      ).format(item.createdAt).toLowerCase();
 
       return nopol.contains(query) ||
           namaKaryawan.contains(query) ||
@@ -259,10 +252,10 @@ class _HistoryListViewState extends State<_HistoryListView> {
     required int remainingCount,
   }) {
     final Map<String, String> armadaMap = {
-      for (var armada in armadaItems) armada.id: armada.nopol
+      for (var armada in armadaItems) armada.id: armada.nopol,
     };
     final Map<String, String> karyawanMap = {
-      for (var karyawan in karyawanItems) karyawan.id: karyawan.nama
+      for (var karyawan in karyawanItems) karyawan.id: karyawan.nama,
     };
 
     return ListView.builder(
@@ -287,8 +280,10 @@ class _HistoryListViewState extends State<_HistoryListView> {
                 ),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.blue[700],
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   backgroundColor: Colors.blue[50],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -302,7 +297,8 @@ class _HistoryListViewState extends State<_HistoryListView> {
         final item = historyItems[index];
         bool isMasuk = item.jenis == 'IN';
 
-        String subJudulText = item.karyawan ??
+        String subJudulText =
+            item.karyawan ??
             karyawanMap[item.idKaryawan.toString()] ??
             'Karyawan tidak tercatat';
 
@@ -311,8 +307,8 @@ class _HistoryListViewState extends State<_HistoryListView> {
               armadaMap[item.idArmada.toString()] ?? 'Nopol tidak tersedia',
           judulBaris2: isMasuk ? 'Masuk' : 'Keluar',
           subJudul: subJudulText,
-          ikon: isMasuk ? Icons.login : Icons.logout,
-          warnaIkon: isMasuk ? Colors.blueAccent : Colors.green,
+          ikon: isMasuk ? Icons.download_rounded : Icons.upload_rounded,
+          warnaIkon: isMasuk ? Colors.green : Colors.red,
           waktu: DateFormat('HH:mm').format(item.createdAt),
           tanggal: DateFormat('dd MMM yyyy').format(item.createdAt),
           itemKey: 'kendaraan_${item.id}',
@@ -324,42 +320,51 @@ class _HistoryListViewState extends State<_HistoryListView> {
               context: context,
               builder: (ctx) => AlertDialog(
                 title: Text('Konfirmasi Hapus', style: GoogleFonts.poppins()),
-                content: Text('Anda yakin ingin menghapus riwayat ini?',
-                    style: GoogleFonts.poppins()),
+                content: Text(
+                  'Anda yakin ingin menghapus riwayat ini?',
+                  style: GoogleFonts.poppins(),
+                ),
                 actions: [
                   TextButton(
-                      child: const Text('Batal'),
-                      onPressed: () => Navigator.of(ctx).pop(false)),
+                    child: const Text('Batal'),
+                    onPressed: () => Navigator.of(ctx).pop(false),
+                  ),
                   TextButton(
-                      child: const Text('Hapus',
-                          style: TextStyle(color: Colors.red)),
-                      onPressed: () => Navigator.of(ctx).pop(true)),
+                    child: const Text(
+                      'Hapus',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                    onPressed: () => Navigator.of(ctx).pop(true),
+                  ),
                 ],
               ),
             ).then((confirmed) {
               if (confirmed == true) {
-                context
-                    .read<KendaraanHistoryBloc>()
-                    .add(KendaraanHistoryDeleted(id: item.id));
+                context.read<KendaraanHistoryBloc>().add(
+                  KendaraanHistoryDeleted(id: item.id),
+                );
               }
             });
           },
           detailChildren: [
             buildDetailRow(
-                icon: Icons.speed,
-                title: 'Kilometer',
-                value: '${item.kilometer.toStringAsFixed(0)} Km'),
+              icon: Icons.local_gas_station,
+              title: 'Sisa BBM',
+              value: '${item.bbm.round()}%',
+            ),
             const Divider(color: Colors.white24),
             buildDetailRow(
-                icon: Icons.local_gas_station,
-                title: 'Sisa BBM',
-                value: '${item.bbm.round()}%'),
+              icon: Icons.speed,
+              title: 'Kilometer',
+              value: '${item.kilometer.toStringAsFixed(0)} Km',
+            ),
             if (item.keterangan != null && item.keterangan!.isNotEmpty) ...[
               const Divider(color: Colors.white24),
               buildDetailRow(
-                  icon: Icons.notes_outlined,
-                  title: 'Keterangan Lain-Lain',
-                  value: item.keterangan!),
+                icon: Icons.notes_outlined,
+                title: 'Keterangan Lain-Lain',
+                value: item.keterangan!,
+              ),
             ],
           ],
         );
@@ -368,8 +373,9 @@ class _HistoryListViewState extends State<_HistoryListView> {
   }
 
   Widget _buildEmptyList(bool isSearching) {
-    String title =
-        isSearching ? 'Tidak Ditemukan' : 'Belum Ada Riwayat Inventaris';
+    String title = isSearching
+        ? 'Tidak Ditemukan'
+        : 'Belum Ada Riwayat Inventaris';
     String message = isSearching
         ? 'Tidak ada data yang cocok dengan pencarian Anda.'
         : 'Data riwayat kendaraan inventaris akan muncul di sini.';
@@ -378,20 +384,27 @@ class _HistoryListViewState extends State<_HistoryListView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(isSearching ? Icons.search_off : Icons.history_toggle_off,
-              size: 80, color: Colors.grey[400]),
+          Icon(
+            isSearching ? Icons.search_off : Icons.history_toggle_off,
+            size: 80,
+            color: Colors.grey[400],
+          ),
           const SizedBox(height: 16),
-          Text(title,
-              style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600])),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Text(message,
-                textAlign: TextAlign.center,
-                style:
-                    GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500])),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500]),
+            ),
           ),
         ],
       ),

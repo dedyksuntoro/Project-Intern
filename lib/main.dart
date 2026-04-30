@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'services/api_service.dart';
 import 'login/view/halaman_login_baru.dart';
-import 'halaman_utama.dart'; 
+import 'halaman_utama.dart';
 import 'service_locator.dart';
 
 Future<void> main() async {
@@ -19,14 +20,12 @@ Future<void> main() async {
 
   await setupLocator();
   await initializeDateFormatting('id_ID', null);
-  
+
   runApp(
     MultiProvider(
       providers: [
         // Menyediakan ApiService untuk akses global
-        Provider<ApiService>(
-          create: (_) => locator<ApiService>(),
-        ),
+        Provider<ApiService>(create: (_) => locator<ApiService>()),
       ],
       child: const MyApp(),
     ),
@@ -43,6 +42,33 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        inputDecorationTheme: InputDecorationTheme(
+          labelStyle: GoogleFonts.poppins(color: Colors.grey[700]),
+          floatingLabelStyle: GoogleFonts.poppins(
+            color: const Color(0xFF001f3f),
+            fontWeight: FontWeight.w600,
+          ),
+          prefixIconColor: Colors.grey[600],
+          filled: true,
+          fillColor: Colors.grey[50],
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: Colors.grey[300]!),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF001f3f), width: 2),
+          ),
+        ),
+
         scaffoldBackgroundColor: Colors.grey[100],
         primaryColor: navyColor,
         appBarTheme: const AppBarTheme(
@@ -75,29 +101,21 @@ class _AuthWrapperState extends State<AuthWrapper> {
     final prefs = await SharedPreferences.getInstance();
     final String? token = prefs.getString('user_token');
 
-    if (!mounted) return; 
+    if (!mounted) return;
 
     if (token != null && token.isNotEmpty) {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => HomeScreen(key: UniqueKey()),
-        ),
+        MaterialPageRoute(builder: (context) => HomeScreen(key: UniqueKey())),
       );
     } else {
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => const LoginPageBaru(),
-        ),
+        MaterialPageRoute(builder: (context) => const LoginPageBaru()),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    return const Scaffold(body: Center(child: CircularProgressIndicator()));
   }
 }

@@ -248,9 +248,18 @@ class ApiService {
 
   Future<List<KendaraanHistory>> fetchKendaraanHistory() async {
     final token = await getToken();
+    final idUser = await _storage.read(key: 'id_user');
     if (token == null) throw Exception('Token tidak ditemukan.');
+
+    Map<String, String> queryParams = {};
+    if (idUser != null) queryParams['id_user'] = idUser;
+
+    final uri = Uri.parse(
+      '$_baseUrl/kendaraan',
+    ).replace(queryParameters: queryParams);
+
     final response = await http.get(
-      Uri.parse('$_baseUrl/kendaraan'),
+      uri,
       headers: {
         'Authorization': 'Bearer $token',
         'Content-Type': 'application/json',
@@ -335,6 +344,7 @@ class ApiService {
     if (status == 'Ada') return 'A';
     if (status == 'Mati') return 'M';
     if (status == 'Tidak Ada') return 'T';
+    if (status == 'Foto Copy') return 'FC';
     return null;
   }
 
@@ -353,8 +363,9 @@ class ApiService {
     String? statusStnk,
     String? stnkTanggal,
     String? statusKir,
+    String? statusKirBet,
     String? kirTanggal,
-    String? kirBet,
+    String? kirTanggalBet,
     String? noLambung,
     String? keterangan,
   }) async {
@@ -374,6 +385,7 @@ class ApiService {
     // Lakukan mapping status sebelum dikirim ke payload
     final apiStatusStnk = _mapStatusToApi(statusStnk);
     final apiStatusKir = _mapStatusToApi(statusKir);
+    final apiStatusKirBet = _mapStatusToApi(statusKirBet);
 
     final Map<String, dynamic> payloadMap = {
       'id_armada': int.tryParse(armadaId),
@@ -391,8 +403,9 @@ class ApiService {
       'status_stnk': apiStatusStnk,
       'stnk_tanggal': stnkTanggal,
       'status_kir': apiStatusKir,
+      'status_kir_bet': apiStatusKirBet,
       'kir_tanggal': kirTanggal,
-      'kir_bet': kirBet,
+      'kir_tanggal_bet': kirTanggalBet,
       'no_lambung': noLambung,
       'keterangan': keterangan,
     };
@@ -515,10 +528,18 @@ class ApiService {
 
   Future<List<TamuHistory>> fetchTamuHistory() async {
     final token = await getToken();
+    final idUser = await _storage.read(key: 'id_user');
     if (token == null) throw Exception('Token tidak ditemukan.');
 
+    Map<String, String> queryParams = {};
+    if (idUser != null) queryParams['id_user'] = idUser;
+
+    final uri = Uri.parse(
+      '$_baseUrl/tamu',
+    ).replace(queryParameters: queryParams);
+
     final response = await http.get(
-      Uri.parse('$_baseUrl/tamu'),
+      uri,
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -620,11 +641,13 @@ class ApiService {
     String? jenis,
   }) async {
     final token = await getToken();
+    final idUser = await _storage.read(key: 'id_user');
     if (token == null) throw Exception('Token tidak ditemukan.');
 
     Map<String, String> queryParams = {};
     if (id != null) queryParams['id'] = id.toString();
     if (jenis != null) queryParams['jenis'] = jenis;
+    if (idUser != null) queryParams['id_user'] = idUser;
 
     final uri = Uri.parse(
       '$_baseUrl/sterima',
@@ -842,10 +865,18 @@ class ApiService {
 
   Future<List<dynamic>> fetchTugasUmumHistory() async {
     final token = await getToken();
+    final idUser = await _storage.read(key: 'id_user');
     if (token == null) throw Exception('Token tidak ditemukan.');
 
+    Map<String, String> queryParams = {};
+    if (idUser != null) queryParams['id_user'] = idUser;
+
+    final uri = Uri.parse(
+      '$_baseUrl/tumum',
+    ).replace(queryParameters: queryParams);
+
     final response = await http.get(
-      Uri.parse('$_baseUrl/tumum'),
+      uri,
       headers: {'Authorization': 'Bearer $token'},
     );
 
@@ -1130,10 +1161,18 @@ class ApiService {
   // 4. Fetch History Tugas OB
   Future<List<dynamic>> fetchObHistory() async {
     final token = await getToken();
+    final idUser = await _storage.read(key: 'id_user');
     if (token == null) throw Exception('Token tidak ditemukan.');
 
+    Map<String, String> queryParams = {};
+    if (idUser != null) queryParams['id_user'] = idUser;
+
+    final uri = Uri.parse(
+      '$_baseUrl/obt',
+    ).replace(queryParameters: queryParams);
+
     final response = await http.get(
-      Uri.parse('$_baseUrl/obt'),
+      uri,
       headers: {'Authorization': 'Bearer $token'},
     );
 

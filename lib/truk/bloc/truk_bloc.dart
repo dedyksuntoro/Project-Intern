@@ -156,8 +156,9 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
         statusStnk: event.statusSTNK,
         stnkTanggal: formatTanggal(event.stnkTanggal),
         statusKir: event.statusKIR,
+        statusKirBet: event.statusKIRBet,
         kirTanggal: formatTanggal(event.kirTanggal),
-        kirBet: event.kirBet.isEmpty ? null : event.kirBet,
+        kirTanggalBet: formatTanggal(event.kirTanggalBet),
         noLambung: event.noLambung,
         keterangan: keteranganLain,
       );

@@ -2,7 +2,8 @@ import 'dart:convert';
 
 List<KendaraanHistory> kendaraanHistoryFromJson(String str) =>
     List<KendaraanHistory>.from(
-        json.decode(str).map((x) => KendaraanHistory.fromJson(x)));
+      json.decode(str).map((x) => KendaraanHistory.fromJson(x)),
+    );
 
 class KendaraanHistory {
   final int id;
@@ -15,19 +16,21 @@ class KendaraanHistory {
   final double bbm;
   final String? statusArmada;
   final String? keteranganArmada;
-  final String? keteranganSopir; 
-  final String? keterangan; 
+  final String? keteranganSopir;
+  final String? keterangan;
   final DateTime createdAt;
   final String nopol;
   final String? sopir;
   final String? karyawan;
   final String? kernet;
-  final DateTime? stnkTanggal; 
+  final DateTime? stnkTanggal;
   final DateTime? kirTanggal;
+  final DateTime? kirTanggalBet;
   final String? kirBet;
   final String? noLambung;
   final String? statusStnk;
   final String? statusKir;
+  final String? statusKirBet;
   final List<String> attachment;
 
   KendaraanHistory({
@@ -41,19 +44,21 @@ class KendaraanHistory {
     required this.bbm,
     this.statusArmada,
     this.keteranganArmada,
-    this.keteranganSopir, 
-    this.keterangan, 
+    this.keteranganSopir,
+    this.keterangan,
     required this.createdAt,
     required this.nopol,
     this.sopir,
     this.karyawan,
     this.kernet,
-    this.stnkTanggal, 
+    this.stnkTanggal,
     this.kirTanggal,
+    this.kirTanggalBet,
     this.kirBet,
     this.noLambung,
     this.statusStnk,
     this.statusKir,
+    this.statusKirBet,
     required this.attachment,
   });
 
@@ -81,19 +86,21 @@ class KendaraanHistory {
       bbm: (json["bbm"] as num?)?.toDouble() ?? 0.0,
       statusArmada: json["status_armada"],
       keteranganArmada: json["keterangan_armada"],
-      keteranganSopir: json["keterangan_sopir"], 
-      keterangan: json["keterangan"], 
+      keteranganSopir: json["keterangan_sopir"],
+      keterangan: json["keterangan"],
       createdAt: safeParseDate(json["created_at"]) ?? DateTime.now(),
       nopol: json["nopol"] ?? 'N/A',
       sopir: json["sopir"],
       karyawan: json["karyawan"],
       kernet: json["kernet"],
-      stnkTanggal: safeParseDate(json["stnk_tanggal"]), 
+      stnkTanggal: safeParseDate(json["stnk_tanggal"]),
       kirTanggal: safeParseDate(json["kir_tanggal"]),
+      kirTanggalBet: safeParseDate(json["kir_tanggal_bet"]),
       kirBet: json["kir_bet"],
       noLambung: json["no_lambung"],
       statusStnk: json["status_stnk"],
       statusKir: json["status_kir"],
+      statusKirBet: json["status_kir_bet"],
 
       attachment: json["attachment"] == null
           ? []

@@ -8,6 +8,7 @@ import '../../../widgets/widget_riwayat_item.dart';
 import '../bloc/sim_history_bloc.dart';
 import '../../../services/api_service.dart';
 import '../../../service_locator.dart';
+import '../../../widgets/image_gallery_viewer.dart';
 
 class HalamanRiwayatSim extends StatelessWidget {
   final TextEditingController searchController;
@@ -139,7 +140,8 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
           }
 
           if (finalFilteredList.isEmpty) {
-            bool isSearching = widget.searchController.text.isNotEmpty ||
+            bool isSearching =
+                widget.searchController.text.isNotEmpty ||
                 widget.selectedDate != null;
             return _buildEmptyList(isSearching);
           }
@@ -165,22 +167,24 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
   }
 
   List<SerahTerimaHistory> _filterList(
-      List<SerahTerimaHistory> history, List<Sopir> sopir) {
+    List<SerahTerimaHistory> history,
+    List<Sopir> sopir,
+  ) {
     final query = widget.searchController.text.toLowerCase().trim();
 
     if (query.isEmpty) return history;
 
     final Map<String, String> sopirMap = {
-      for (var item in sopir) item.id: item.nama
+      for (var item in sopir) item.id: item.nama,
     };
 
     return history.where((item) {
       final statusSim = (item.statusSim ?? '').toLowerCase();
-      final namaSopir =
-          sopirMap[item.idSopir?.toString()]?.toLowerCase() ?? '';
+      final namaSopir = sopirMap[item.idSopir?.toString()]?.toLowerCase() ?? '';
       final keterangan = (item.keterangan ?? '').toLowerCase();
-      final tanggal =
-          DateFormat('dd MMM yyyy').format(item.createdAt).toLowerCase();
+      final tanggal = DateFormat(
+        'dd MMM yyyy',
+      ).format(item.createdAt).toLowerCase();
 
       return statusSim.contains(query) ||
           namaSopir.contains(query) ||
@@ -196,7 +200,7 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
     required int remainingCount,
   }) {
     final Map<String, String> sopirMap = {
-      for (var sopir in sopirItems) sopir.id: sopir.nama
+      for (var sopir in sopirItems) sopir.id: sopir.nama,
     };
 
     return ListView.builder(
@@ -221,8 +225,10 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
                 ),
                 style: TextButton.styleFrom(
                   foregroundColor: Colors.blue[700],
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
                   backgroundColor: Colors.blue[50],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -236,7 +242,8 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
         final item = historyItems[index];
 
         final String statusText = (item.statusSim ?? 'N/A').trim();
-        final String namaSopir = sopirMap[item.idSopir?.toString()] ??
+        final String namaSopir =
+            sopirMap[item.idSopir?.toString()] ??
             'Sopir #${item.idSopir ?? "N/A"}';
         final String? keterangan = item.keterangan;
 
@@ -257,24 +264,30 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
           },
           detailChildren: [
             buildDetailRow(
-                icon: Icons.badge_outlined, title: 'Status', value: statusText),
+              icon: Icons.badge_outlined,
+              title: 'Status',
+              value: statusText,
+            ),
             const Divider(color: Colors.white24),
             buildDetailRow(
-                icon: Icons.person_outlined,
-                title: 'Nama Sopir',
-                value: namaSopir),
+              icon: Icons.person_outlined,
+              title: 'Nama Sopir',
+              value: namaSopir,
+            ),
             if (keterangan != null && keterangan.isNotEmpty) ...[
               const Divider(color: Colors.white24),
               buildDetailRow(
-                  icon: Icons.notes_outlined,
-                  title: 'Keterangan',
-                  value: keterangan),
+                icon: Icons.notes_outlined,
+                title: 'Keterangan',
+                value: keterangan,
+              ),
             ],
             const Divider(color: Colors.white24),
             buildDetailRow(
-                icon: Icons.attachment,
-                title: 'Lampiran',
-                value: '${item.countAttachment} file'),
+              icon: Icons.attachment,
+              title: 'Lampiran',
+              value: '${item.countAttachment} file',
+            ),
           ],
         );
       },
@@ -284,9 +297,9 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
   IconData _getIconForStatus(String status) {
     final statusLower = status.toLowerCase().trim();
     if (statusLower == 'diterima') {
-      return Icons.arrow_circle_down_outlined;
+      return Icons.arrow_downward_rounded;
     } else if (statusLower == 'diserahkan') {
-      return Icons.arrow_circle_up_outlined;
+      return Icons.arrow_upward_rounded;
     }
     return Icons.sim_card_outlined;
   }
@@ -296,7 +309,7 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
     if (statusLower == 'diterima') {
       return Colors.green;
     } else if (statusLower == 'diserahkan') {
-      return Colors.orange;
+      return Colors.red;
     }
     return Colors.blueGrey;
   }
@@ -306,18 +319,22 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Konfirmasi Hapus', style: GoogleFonts.poppins()),
-        content: Text('Anda yakin ingin menghapus riwayat SIM ini?',
-            style: GoogleFonts.poppins()),
+        content: Text(
+          'Anda yakin ingin menghapus riwayat SIM ini?',
+          style: GoogleFonts.poppins(),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
           TextButton(
-              onPressed: () {
-                Navigator.of(ctx).pop(true);
-                context.read<SimHistoryBloc>().add(SimHistoryDeleted(id: id));
-              },
-              child: const Text('Hapus', style: TextStyle(color: Colors.red))),
+            onPressed: () {
+              Navigator.of(ctx).pop(true);
+              context.read<SimHistoryBloc>().add(SimHistoryDeleted(id: id));
+            },
+            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+          ),
         ],
       ),
     );
@@ -333,20 +350,27 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(isSearching ? Icons.search_off : Icons.history_toggle_off,
-              size: 80, color: Colors.grey[400]),
+          Icon(
+            isSearching ? Icons.search_off : Icons.history_toggle_off,
+            size: 80,
+            color: Colors.grey[400],
+          ),
           const SizedBox(height: 16),
-          Text(title,
-              style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600])),
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 40.0),
-            child: Text(message,
-                textAlign: TextAlign.center,
-                style:
-                    GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500])),
+            child: Text(
+              message,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500]),
+            ),
           ),
         ],
       ),
@@ -363,25 +387,29 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
           Text(
             'Gagal Terhubung',
             style: GoogleFonts.poppins(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: Colors.grey[600]),
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
           ),
           Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 40.0, vertical: 8.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 40.0,
+              vertical: 8.0,
+            ),
             child: Text(
               errorMessage ?? 'Terjadi kesalahan koneksi.',
               textAlign: TextAlign.center,
-              style:
-                  GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500]),
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.grey[500]),
             ),
           ),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             icon: const Icon(Icons.refresh),
-            label: Text('Coba Lagi',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+            label: Text(
+              'Coba Lagi',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+            ),
             onPressed: () {
               context.read<SimHistoryBloc>().add(SimHistoryFetched());
             },
@@ -400,86 +428,3 @@ class _HalamanRiwayatSimViewState extends State<HalamanRiwayatSimView> {
   }
 }
 
-class ImageGalleryScreen extends StatefulWidget {
-  final List<String> imageUrls;
-  final int initialIndex;
-  final Map<String, String> authHeaders;
-
-  const ImageGalleryScreen({
-    super.key,
-    required this.imageUrls,
-    this.initialIndex = 0,
-    required this.authHeaders,
-  });
-
-  @override
-  State<ImageGalleryScreen> createState() => _ImageGalleryScreenState();
-}
-
-class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
-  late PageController _pageController;
-  late int currentIndex;
-
-  @override
-  void initState() {
-    super.initState();
-    currentIndex = widget.initialIndex;
-    _pageController = PageController(initialPage: currentIndex);
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-        title: Text(
-          '${currentIndex + 1} dari ${widget.imageUrls.length}',
-          style: GoogleFonts.poppins(color: Colors.white, fontSize: 16),
-        ),
-        centerTitle: true,
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.imageUrls.length,
-        onPageChanged: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        itemBuilder: (context, index) {
-          return InteractiveViewer(
-            panEnabled: true,
-            minScale: 1.0,
-            maxScale: 4.0,
-            child: Center(
-              child: Image.network(
-                widget.imageUrls[index],
-                headers: widget.authHeaders,
-                fit: BoxFit.contain,
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return const Center(
-                      child: CircularProgressIndicator(color: Colors.white));
-                },
-                errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                      child: Icon(Icons.broken_image,
-                          color: Colors.grey, size: 80));
-                },
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-}

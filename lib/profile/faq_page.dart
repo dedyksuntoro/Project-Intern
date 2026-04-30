@@ -23,29 +23,46 @@ class FaqScreen extends StatefulWidget {
 class _FaqScreenState extends State<FaqScreen> {
   final List<FaqItem> _faqList = [
     FaqItem(
-      question: 'Apa itu aplikasi ini?',
+      question: 'Untuk apa aplikasi ini?',
       answer:
-          'Aplikasi ini adalah sebuah platform luar biasa yang dirancang untuk mempermudah Security. Kami menyediakan berbagai fitur canggih untuk memenuhi kebutuhan oprasional perusahaan sehari-hari.',
+          'Aplikasi MPPM General Affair dirancang untuk mempermudah operasional harian tim Security, Office Boy (OB), dan Staff Tugas Umum. Aplikasi ini menyediakan fitur pencatatan tamu, kendaraan inventaris, cek truk, serah terima dokumen, serah terima SIM sopir, laporan tugas umum, serta laporan tugas OB.',
     ),
     FaqItem(
-      question: 'Bagaimana cara mereset password saya?',
+      question: 'Apa saja fitur yang tersedia di aplikasi ini?',
       answer:
-          'Untuk mereset password, Login terlebih dahulu ke Mandala Security App, kemudian ke menu profile, click pada button ubah password. Isi passwrod sesuai dengan kebutuhan.',
+          'Aplikasi ini memiliki 7 menu utama:\n'
+          '1. Formulir Tamu — mencatat data tamu yang berkunjung.\n'
+          '2. Kendaraan Inventaris — mencatat kendaraan inventaris keluar/masuk.\n'
+          '3. Cek Truk — mencatat kondisi truk masuk dan keluar.\n'
+          '4. Dokumen — serah terima paket, dokumen, dan surat.\n'
+          '5. Serah SIM — serah terima SIM sopir.\n'
+          '6. Tugas Umum — mencatat tugas umum dan pemakaian inventaris.\n'
+          '7. Tugas OB — mencatat pekerjaan Office Boy.',
     ),
     FaqItem(
-      question: 'Apakah data saya aman?',
+      question: 'Bagaimana cara melihat riwayat aktivitas saya?',
       answer:
-          'Tentu saja. Keamanan data pengguna adalah prioritas utama kami. Kami menggunakan enkripsi end-to-end dan praktik keamanan standar industri untuk melindungi semua informasi Anda.',
+          'Anda dapat melihat seluruh riwayat aktivitas melalui menu "Riwayat" yang tersedia di navigasi bawah aplikasi. Di halaman tersebut, Anda bisa melihat catatan aktivitas yang telah dilakukan sebelumnya.',
     ),
     FaqItem(
-      question: 'Bagaimana cara menghubungi layanan pelanggan?',
+      question: 'Bagaimana cara menghubungi bantuan teknis?',
       answer:
-          'Anda bisa menghubungi kami melalui telepon perusahaan depatermen IT , atau langsung mendatangi ruangan Departemen IT.',
+          'Jika mengalami kendala, Anda dapat menghubungi Departemen IT melalui telepon internal perusahaan atau langsung mendatangi ruangan Departemen IT untuk mendapatkan bantuan.',
     ),
     FaqItem(
-      question: 'Bagaimana cara mengatasi aplikasi terasa berat?',
+      question: 'Bagaimana cara mengatasi aplikasi yang terasa lambat?',
       answer:
-          'Pengguna diwajibkan menghapus cache aplikasi jika aplikasi terasa berat. Dengan cara klik tahan pada aplikasi dan akan di arahkan ke detail aplikasi , pilih hapus cache.',
+          'Jika aplikasi terasa lambat, silakan hapus cache aplikasi dengan cara: tekan dan tahan ikon aplikasi → pilih "Info Aplikasi" atau "Detail Aplikasi" → pilih "Penyimpanan" → ketuk "Hapus Cache". Pastikan juga perangkat Anda memiliki koneksi internet yang stabil.',
+    ),
+    FaqItem(
+      question: 'Apakah data saya aman di aplikasi ini?',
+      answer:
+          'Ya, aplikasi ini menggunakan sistem autentikasi token untuk menjaga keamanan akun Anda. Setiap sesi login diamankan dan data Anda hanya dapat diakses oleh akun yang berwenang. Jangan pernah membagikan informasi login Anda kepada orang lain.',
+    ),
+    FaqItem(
+      question: 'Bagaimana jika aplikasi meminta pembaruan?',
+      answer:
+          'Aplikasi akan secara otomatis memeriksa ketersediaan versi terbaru saat dibuka. Jika tersedia pembaruan, ikuti petunjuk yang muncul di layar untuk mengunduh dan menginstal versi terbaru agar fitur dan performa aplikasi tetap optimal.',
     ),
   ];
 
@@ -91,9 +108,8 @@ class _FaqScreenState extends State<FaqScreen> {
               title: Text(
                 item.question,
                 style: const TextStyle(
-                 
                   fontWeight: FontWeight.bold,
-                  
+
                   color: Colors.black,
                 ),
               ),
@@ -106,10 +122,7 @@ class _FaqScreenState extends State<FaqScreen> {
                     child: Text(
                       item.answer,
                       textAlign: TextAlign.justify,
-                      style: TextStyle(
-                        color: Colors.grey[800],
-                        height: 1.5,
-                      ),
+                      style: TextStyle(color: Colors.grey[800], height: 1.5),
                     ),
                   ),
                 ),
