@@ -8,6 +8,7 @@ import 'services/api_service.dart';
 import 'login/view/halaman_login_baru.dart';
 import 'halaman_utama.dart';
 import 'service_locator.dart';
+import 'permission/halaman_permission.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,15 +94,27 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   void initState() {
     super.initState();
-    _checkLoginStatus();
+    _checkInitialRoute();
   }
 
-  // Cek status login pengguna
-  Future<void> _checkLoginStatus() async {
+  // Cek status route awal pengguna (Permissions & Login)
+  Future<void> _checkInitialRoute() async {
     final prefs = await SharedPreferences.getInstance();
-    final String? token = prefs.getString('user_token');
+    
+    // 1. Cek apakah pengguna sudah melihat halaman izin
+    final bool hasSeenPermissions = prefs.getBool('has_seen_permissions') ?? false;
 
     if (!mounted) return;
+
+    if (!hasSeenPermissions) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const PermissionScreen()),
+      );
+      return;
+    }
+
+    // 2. Jika sudah, cek status login
+    final String? token = prefs.getString('user_token');
 
     if (token != null && token.isNotEmpty) {
       Navigator.of(context).pushReplacement(

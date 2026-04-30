@@ -411,6 +411,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   endIndent: 16,
                                 ),
                                 _buildProfileMenu(
+                                  title: 'Tentang Aplikasi',
+                                  icon: Icons.perm_device_information_outlined,
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          contentPadding: const EdgeInsets.all(24),
+                                          content: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Image.asset('assets/logo.png', width: 70, height: 70),
+                                              const SizedBox(height: 16),
+                                              Text(
+                                                'MPPM App',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: const Color(0xFF001f3f),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                'Versi 2.0.0+5',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 14,
+                                                  color: Colors.grey[600],
+                                                ),
+                                              ),
+                                              const SizedBox(height: 20),
+                                              Text(
+                                                'Sistem Manajemen Terpadu untuk menunjang performa operasional perusahaan.',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  color: Colors.black87,
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 24),
+                                              const Divider(),
+                                              const SizedBox(height: 12),
+                                              Text(
+                                                '© 2026 Mandala Group\nAll rights reserved.',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 11,
+                                                  color: Colors.grey[500],
+                                                ),
+                                                textAlign: TextAlign.center,
+                                              ),
+                                              const SizedBox(height: 20),
+                                              SizedBox(
+                                                width: double.infinity,
+                                                child: ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: const Color(0xFF001f3f),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(10),
+                                                    ),
+                                                  ),
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text(
+                                                    'Tutup',
+                                                    style: GoogleFonts.poppins(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                                const Divider(
+                                  height: 1,
+                                  indent: 56,
+                                  endIndent: 16,
+                                ),
+                                _buildProfileMenu(
                                   title: 'Logout',
                                   icon: Icons.logout,
                                   color: Colors.red,
