@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import '../models/users.dart';
 import '../services/api_service.dart';
 import '../login/view/halaman_login_baru.dart';
@@ -413,7 +414,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 _buildProfileMenu(
                                   title: 'Tentang Aplikasi',
                                   icon: Icons.perm_device_information_outlined,
-                                  onTap: () {
+                                  onTap: () async {
+                                    final packageInfo = await PackageInfo.fromPlatform();
+                                    final versionString = 'Versi ${packageInfo.version}+${packageInfo.buildNumber}';
+                                    final currentYear = DateTime.now().year;
+
+                                    if (!context.mounted) return;
                                     showDialog(
                                       context: context,
                                       builder: (context) {
@@ -437,7 +443,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               ),
                                               const SizedBox(height: 4),
                                               Text(
-                                                'Versi 2.0.0+5',
+                                                versionString,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 14,
                                                   color: Colors.grey[600],
@@ -456,7 +462,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               const Divider(),
                                               const SizedBox(height: 12),
                                               Text(
-                                                '© 2026 Mandala Group\nAll rights reserved.',
+                                                '© $currentYear Mandala Group\nAll rights reserved.',
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 11,
                                                   color: Colors.grey[500],
