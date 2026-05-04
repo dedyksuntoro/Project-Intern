@@ -1,9 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:ota_update/ota_update.dart';
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UpdateService {
   static const String _repoOwner = 'dedyksuntoro';
@@ -124,38 +128,140 @@ class UpdateService {
   // Download and install
   Future<void> _downloadAndInstall(BuildContext context, String url) async {
     try {
-      // Request storage permission for Android < 13
-      // For Android 13+, notification permission might be needed but ota_update handles basic intents
-      var status = await Permission.storage.status;
-      if (!status.isGranted) {
-        status = await Permission.storage.request();
-      }
+      if (!context.mounted) return;
 
-      // On Android 13+, this permission might be permanently denied or not applicable (as scoped storage is used)
-      // We proceed anyway as ota_update uses DownloadManager or similar which might not need strict WRITE_EXTERNAL_STORAGE on newer Androids
-
-      // Request install packages permission (usually handled by system dialog on first try, but good to check)
-      // Note: This often requires opening settings manually if not granted, but let's try execute first.
-
-      OtaUpdate().execute(url, destinationFilename: 'app-release.apk').listen((
-        OtaEvent event,
-      ) {
-        if (event.status == OtaStatus.DOWNLOADING) {
-          // You could show a progress dialog here
-          debugPrint('Downloading: ${event.value}%');
-        } else if (event.status == OtaStatus.INSTALLING) {
-          debugPrint('Installing...');
-        } else {
-          debugPrint('OTA Status: ${event.status}');
-        }
-      });
+      // Show a dialog to indicate download progress and handle potential errors visually
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext dialogContext) {
+          return _DownloadDialog(url: url);
+        },
+      );
     } catch (e) {
-      debugPrint('OTA Error: $e');
+      debugPrint('Update Error: $e');
       if (context.mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Gagal memulai update: $e')));
       }
     }
+  }
+}
+
+class _DownloadDialog extends StatefulWidget {
+  final String url;
+  const _DownloadDialog({Key? key, required this.url}) : super(key: key);
+
+  @override
+  State<_DownloadDialog> createState() => _DownloadDialogState();
+}
+
+class _DownloadDialogState extends State<_DownloadDialog> {
+  double _progress = 0.0;
+  String _status = 'Menyiapkan unduhan...';
+  bool _isDownloading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _startDownload();
+  }
+
+  Future<void> _startDownload() async {
+    try {
+      final dio = Dio();
+
+      // Use getExternalStorageDirectory for Android to avoid WRITE_EXTERNAL_STORAGE permission
+      Directory? dir;
+      if (Platform.isAndroid) {
+        dir = await getExternalStorageDirectory();
+      } else {
+        dir = await getApplicationDocumentsDirectory();
+      }
+
+      if (dir == null) {
+        if (mounted) {
+          setState(() {
+            _status = 'Gagal mengakses penyimpanan internal.';
+            _isDownloading = false;
+          });
+        }
+        return;
+      }
+
+      final savePath = '${dir.path}/app-release.apk';
+
+      if (mounted) {
+        setState(() {
+          _status = 'Mengunduh...';
+        });
+      }
+
+      await dio.download(
+        widget.url,
+        savePath,
+        onReceiveProgress: (received, total) {
+          if (total != -1 && mounted) {
+            setState(() {
+              _progress = received / total;
+              _status = 'Mengunduh: ${(_progress * 100).toStringAsFixed(0)}%';
+            });
+          }
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _status = 'Membuka installer aplikasi...';
+          _isDownloading = false;
+        });
+      }
+
+      // Open the downloaded APK using open_filex
+      final result = await OpenFilex.open(savePath);
+      if (result.type != ResultType.done && mounted) {
+        setState(() {
+          _status = 'Gagal membuka APK:\n${result.message}';
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _status = 'Gagal mengunduh:\n$e';
+          _isDownloading = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Mengunduh Update'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_isDownloading) const CircularProgressIndicator(),
+          if (_isDownloading) const SizedBox(height: 16),
+          Text(_status, textAlign: TextAlign.center),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () async {
+            final uri = Uri.parse(widget.url);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+            }
+          },
+          child: const Text('Unduh Manual'),
+        ),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Tutup'),
+        ),
+      ],
+    );
   }
 }
