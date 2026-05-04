@@ -14,8 +14,8 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
   final ApiService _apiService;
 
   TrukBloc({required ApiService apiService})
-      : _apiService = apiService,
-        super(const TrukState()) {
+    : _apiService = apiService,
+      super(const TrukState()) {
     on<TrukDataLoaded>(_onDataLoaded);
     on<TrukArmadaChanged>(_onArmadaChanged);
     on<TrukSopirChanged>(_onSopirChanged);
@@ -23,7 +23,9 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
   }
 
   Future<void> _onDataLoaded(
-      TrukDataLoaded event, Emitter<TrukState> emit) async {
+    TrukDataLoaded event,
+    Emitter<TrukState> emit,
+  ) async {
     emit(state.copyWith(status: TrukStatus.loading));
     try {
       // 1. Ambil data Armada, Sopir, dan Karyawan
@@ -35,13 +37,14 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
 
       final armadaList = results[0] as List<Armada>;
       final sopirAsliList = results[1] as List<Sopir>;
-      
+
       // Ambil list karyawan (bisa dynamic atau List<Karyawan> tergantung model Anda)
-      final allKaryawanList = results[2]; 
+      final allKaryawanList = results[2];
 
       // 2. Filter Armada (Non-Inventaris)
-      final filteredArmada =
-          armadaList.where((armada) => armada.inventaris == 'N').toList();
+      final filteredArmada = armadaList
+          .where((armada) => armada.inventaris == 'N')
+          .toList();
 
       // 3. FILTER KHUSUS: Hanya ambil "WAWAN" (ID 204)
       // Kita cek apakah namanya mengandung "WAWAN" atau ID-nya "204"
@@ -50,7 +53,7 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
         // Kita gunakan toString() dan toUpperCase() untuk keamanan
         final nama = k.nama.toString().toUpperCase();
         final id = k.id.toString();
-        
+
         return id == '204' || nama.contains('WAWAN');
       }).toList();
 
@@ -61,7 +64,7 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
           nama: k.nama,
           alias: k.alias ?? k.nama, // Pakai alias jika ada
           idProg: '-', // Dummy data
-          nik: '-',    // Dummy data agar tidak error di UI
+          nik: '-', // Dummy data agar tidak error di UI
         );
       }).toList();
 
@@ -74,12 +77,13 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
         uniqueMap[s.id] = s;
       }
 
-      emit(state.copyWith(
-        status: TrukStatus.success,
-        daftarArmada: filteredArmada,
-        daftarSopir: uniqueMap.values.toList(),
-      ));
-
+      emit(
+        state.copyWith(
+          status: TrukStatus.success,
+          daftarArmada: filteredArmada,
+          daftarSopir: uniqueMap.values.toList(),
+        ),
+      );
     } catch (e) {
       String errorMessage;
       if (e.toString().contains('SocketException')) {
@@ -90,10 +94,9 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
             "Gagal memuat data awal: ${e.toString().replaceAll("Exception: ", "")}";
       }
 
-      emit(state.copyWith(
-        status: TrukStatus.failure,
-        errorMessage: errorMessage,
-      ));
+      emit(
+        state.copyWith(status: TrukStatus.failure, errorMessage: errorMessage),
+      );
     }
   }
 
@@ -106,16 +109,24 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
   }
 
   Future<void> _onDataSubmitted(
-      TrukDataSubmitted event, Emitter<TrukState> emit) async {
+    TrukDataSubmitted event,
+    Emitter<TrukState> emit,
+  ) async {
     if (state.armadaTerpilih == null) {
-      return emit(state.copyWith(
+      return emit(
+        state.copyWith(
           status: TrukStatus.submissionFailure,
-          errorMessage: "Mohon pilih NOPOL terlebih dahulu."));
+          errorMessage: "Mohon pilih NOPOL terlebih dahulu.",
+        ),
+      );
     }
     if (state.sopirTerpilih == null) {
-      return emit(state.copyWith(
+      return emit(
+        state.copyWith(
           status: TrukStatus.submissionFailure,
-          errorMessage: "Mohon pilih nama sopir terlebih dahulu."));
+          errorMessage: "Mohon pilih nama sopir terlebih dahulu.",
+        ),
+      );
     }
 
     emit(state.copyWith(status: TrukStatus.submitting));
@@ -131,14 +142,15 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
         }
       }
 
-      final List<File> validAttachments =
-          event.attachments.whereType<File>().toList();
+      final List<File> validAttachments = event.attachments
+          .whereType<File>()
+          .toList();
 
-      String keteranganLain = event.keteranganLain ?? '';
-      if (event.statusKIR == 'Tidak Ada') {
-        keteranganLain = (keteranganLain.isEmpty ? '' : '$keteranganLain\n') +
-            'Tidak ada Keterangan';
-      }
+      String? keteranganLain = event.keteranganLain ?? null;
+      // if (event.statusKIR == 'Tidak Ada') {
+      //   keteranganLain = (keteranganLain.isEmpty ? '' : '$keteranganLain\n') +
+      //       'Tidak ada Keterangan';
+      // }
 
       await _apiService.saveTrukCheck(
         armadaId: state.armadaTerpilih!,
@@ -171,10 +183,12 @@ class TrukBloc extends Bloc<TrukEvent, TrukState> {
             "KONEKSI_GAGAL_SIMPAN: Gagal menyimpan data karena masalah jaringan. Coba lagi.";
       }
 
-      emit(state.copyWith(
-        status: TrukStatus.submissionFailure,
-        errorMessage: errorMessage,
-      ));
+      emit(
+        state.copyWith(
+          status: TrukStatus.submissionFailure,
+          errorMessage: errorMessage,
+        ),
+      );
     } finally {
       emit(state.copyWith(status: TrukStatus.success, clearError: true));
     }

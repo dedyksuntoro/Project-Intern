@@ -1,4 +1,6 @@
+import 'dart:developer';
 import 'dart:io';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -20,9 +22,9 @@ class HalamanKendaraanView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => KendaraanBloc(
-        apiService: locator<ApiService>(),
-      )..add(LoadInitialData()),
+      create: (context) =>
+          KendaraanBloc(apiService: locator<ApiService>())
+            ..add(LoadInitialData()),
       child: const _KendaraanCheckScreen(),
     );
   }
@@ -40,7 +42,7 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
   final _kilometerController = TextEditingController();
   final _armadaController = TextEditingController();
   final _karyawanController = TextEditingController();
-  final _keteranganLainController = TextEditingController(); 
+  final _keteranganLainController = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
 
@@ -50,7 +52,7 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
   List<File> _fotoPenanggungJawab = []; // <-- TAMBAHAN BARU
 
   final Set<int> _processingSlotIndexes = {};
-  bool _showKeteranganLain = false; 
+  bool _showKeteranganLain = false;
 
   @override
   void initState() {
@@ -62,13 +64,13 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
     _kilometerController.dispose();
     _armadaController.dispose();
     _karyawanController.dispose();
-    _keteranganLainController.dispose(); 
+    _keteranganLainController.dispose();
     super.dispose();
   }
 
   void _showError(String message) {
     if (!mounted) return;
-    
+
     String userFriendlyMessage;
     Color backgroundColor = Colors.red;
 
@@ -76,41 +78,52 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
       userFriendlyMessage = 'Gagal memuat data! Periksa koneksi internet Anda.';
       backgroundColor = const Color.fromRGBO(244, 67, 54, 1);
     } else if (message.startsWith('KONEKSI_GAGAL_SIMPAN')) {
-      userFriendlyMessage = 'Gagal menyimpan data karena masalah jaringan atau sinyal buruk. Coba lagi.';
+      userFriendlyMessage =
+          'Gagal menyimpan data karena masalah jaringan atau sinyal buruk. Coba lagi.';
       backgroundColor = const Color.fromRGBO(244, 67, 54, 1);
     } else {
-      userFriendlyMessage = message; 
+      userFriendlyMessage = message;
       backgroundColor = const Color.fromRGBO(244, 67, 54, 1);
     }
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(userFriendlyMessage), backgroundColor: backgroundColor, duration: const Duration(seconds: 4)),
+      SnackBar(
+        content: Text(userFriendlyMessage),
+        backgroundColor: backgroundColor,
+        duration: const Duration(seconds: 4),
+      ),
     );
   }
 
   Future<void> _pilihSumberGambar(int slotIndex) async {
     FocusScope.of(context).unfocus();
     await showModalBottomSheet(
-        context: context,
-        builder: (BuildContext sheetContext) {
-          return SafeArea(
-              child: Wrap(children: <Widget>[
-            ListTile(
+      context: context,
+      builder: (BuildContext sheetContext) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
                 leading: const Icon(Icons.photo_library),
                 title: Text('Pilih dari Galeri', style: GoogleFonts.poppins()),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   _ambilDanProsesGambar(ImageSource.gallery, slotIndex);
-                }),
-            ListTile(
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.photo_camera),
                 title: Text('Ambil dari Kamera', style: GoogleFonts.poppins()),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   _ambilDanProsesGambar(ImageSource.camera, slotIndex);
-                })
-          ]));
-        });
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _ambilDanProsesGambar(ImageSource source, int slotIndex) async {
@@ -142,7 +155,8 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
           if (slotIndex == 1) _fotoLuar.add(watermarkedFile);
           if (slotIndex == 2) _fotoDalam.add(watermarkedFile);
           if (slotIndex == 3) _fotoSurat.add(watermarkedFile);
-          if (slotIndex == 4) _fotoPenanggungJawab.add(watermarkedFile); // <-- TAMBAHAN BARU
+          if (slotIndex == 4)
+            _fotoPenanggungJawab.add(watermarkedFile); // <-- TAMBAHAN BARU
         });
       } catch (e) {
         _showError(e.toString().replaceAll('Exception: ', ''));
@@ -165,15 +179,19 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Hapus Foto?', style: GoogleFonts.poppins()),
-        content:
-            Text('Anda yakin ingin menghapus foto ini?', style: GoogleFonts.poppins()),
+        content: Text(
+          'Anda yakin ingin menghapus foto ini?',
+          style: GoogleFonts.poppins(),
+        ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Batal'),
+          ),
           TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: const Text('Hapus', style: TextStyle(color: Colors.red))),
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Hapus', style: TextStyle(color: Colors.red)),
+          ),
         ],
       ),
     );
@@ -188,7 +206,9 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
     } else if (slotIndex == 3) {
       fileToDelete = _fotoSurat.removeAt(fileIndex);
     } else {
-      fileToDelete = _fotoPenanggungJawab.removeAt(fileIndex); // <-- TAMBAHAN BARU
+      fileToDelete = _fotoPenanggungJawab.removeAt(
+        fileIndex,
+      ); // <-- TAMBAHAN BARU
     }
 
     setState(() {});
@@ -204,26 +224,33 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
 
   void _simpanData() {
     FocusScope.of(context).unfocus();
+
     final isFormValid = _formKey.currentState?.validate() ?? false;
     if (!isFormValid) {
       _showError('Mohon lengkapi semua data dengan benar.');
       return;
     }
     // UPDATE: Validasi penambahan kategori foto baru
-    if (_fotoLuar.isEmpty || _fotoDalam.isEmpty || _fotoSurat.isEmpty || _fotoPenanggungJawab.isEmpty) {
+    if (_fotoLuar.isEmpty ||
+        _fotoDalam.isEmpty ||
+        _fotoSurat.isEmpty ||
+        _fotoPenanggungJawab.isEmpty) {
       _showError('Mohon unggah minimal satu foto untuk setiap kategori.');
       return;
     }
 
-    context.read<KendaraanBloc>().add(SubmitData(
-          kilometer: _kilometerController.text,
-          fotoLuar: _fotoLuar,
-          fotoDalam: _fotoDalam,
-          fotoSurat: _fotoSurat,
-          fotoPenanggungJawab: _fotoPenanggungJawab, // <-- TAMBAHAN BARU
-          keteranganLain:
-              _showKeteranganLain ? _keteranganLainController.text : null,
-        ));
+    context.read<KendaraanBloc>().add(
+      SubmitData(
+        kilometer: _kilometerController.text,
+        fotoLuar: _fotoLuar,
+        fotoDalam: _fotoDalam,
+        fotoSurat: _fotoSurat,
+        fotoPenanggungJawab: _fotoPenanggungJawab,
+        keteranganLain: _showKeteranganLain
+            ? _keteranganLainController.text
+            : null,
+      ),
+    );
   }
 
   @override
@@ -231,11 +258,13 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
     const Color navyColor = Color(0xFF001f3f);
     return BlocListener<KendaraanBloc, KendaraanState>(
       listener: (context, state) {
+        log(state.status.toString());
         if (state.status == KendaraanStatus.submissionSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-                content: Text("Data berhasil disimpan!"),
-                backgroundColor: Colors.green),
+              content: Text("Data berhasil disimpan!"),
+              backgroundColor: Colors.green,
+            ),
           );
 
           if (mounted) Navigator.of(context).pop();
@@ -260,12 +289,16 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
               ),
             ),
           ),
-          title: Text('Cek Kendaraan',
-              style: GoogleFonts.poppins(
-                  fontWeight: FontWeight.w600, color: Colors.white)),
+          title: Text(
+            'Cek Kendaraan',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              color: Colors.white,
+            ),
+          ),
           centerTitle: true,
         ),
-        body: SafeArea( 
+        body: SafeArea(
           child: SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -281,18 +314,22 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10)
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                          ),
                         ],
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Detail Kendaraan Inven',
-                              style: GoogleFonts.poppins(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: navyColor)),
+                          Text(
+                            'Detail Kendaraan Inven',
+                            style: GoogleFonts.poppins(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: navyColor,
+                            ),
+                          ),
                           const SizedBox(height: 12),
                           const Divider(),
                           const SizedBox(height: 12),
@@ -300,11 +337,14 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                           const SizedBox(height: 16),
                           _buildKaryawanDropdown(),
                           const SizedBox(height: 24),
-                          
-                          Text('Status Pengecekan',
-                              style: GoogleFonts.poppins(
-                                  color: Colors.grey[700],
-                                  fontWeight: FontWeight.w600)),
+
+                          Text(
+                            'Status Pengecekan',
+                            style: GoogleFonts.poppins(
+                              color: Colors.grey[700],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                           const SizedBox(height: 8),
                           BlocBuilder<KendaraanBloc, KendaraanState>(
                             buildWhen: (p, c) =>
@@ -315,55 +355,78 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                                 child: SegmentedButton<String>(
                                   segments: const <ButtonSegment<String>>[
                                     ButtonSegment<String>(
-                                        value: 'Masuk',
-                                        label: Text('Masuk', style: TextStyle(fontSize: 13))), 
+                                      value: 'Masuk',
+                                      label: Text(
+                                        'Masuk',
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ),
                                     ButtonSegment<String>(
-                                        value: 'Keluar',
-                                        label: Text('Keluar', style: TextStyle(fontSize: 13))), 
+                                      value: 'Keluar',
+                                      label: Text(
+                                        'Keluar',
+                                        style: TextStyle(fontSize: 13),
+                                      ),
+                                    ),
                                   ],
                                   selected: {state.statusPilihan},
-                                  onSelectionChanged: (Set<String> newSelection) {
-                                    final status = newSelection.first;
-                                    context.read<KendaraanBloc>().add(
-                                        StatusPilihanChanged(status: status));
-                                  },
+                                  onSelectionChanged:
+                                      (Set<String> newSelection) {
+                                        final status = newSelection.first;
+                                        context.read<KendaraanBloc>().add(
+                                          StatusPilihanChanged(status: status),
+                                        );
+                                      },
                                   style: ButtonStyle(
-                                    visualDensity: VisualDensity.compact, 
-                                    padding: MaterialStateProperty.all(EdgeInsets.zero),
-                                    backgroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                        if (states.contains(MaterialState.selected)) {
+                                    visualDensity: VisualDensity.compact,
+                                    padding: MaterialStateProperty.all(
+                                      EdgeInsets.zero,
+                                    ),
+                                    backgroundColor:
+                                        MaterialStateProperty.resolveWith<
+                                          Color
+                                        >((Set<MaterialState> states) {
+                                          if (states.contains(
+                                            MaterialState.selected,
+                                          )) {
+                                            return navyColor;
+                                          }
+                                          return Colors.grey[200]!;
+                                        }),
+                                    foregroundColor:
+                                        MaterialStateProperty.resolveWith<
+                                          Color
+                                        >((Set<MaterialState> states) {
+                                          if (states.contains(
+                                            MaterialState.selected,
+                                          )) {
+                                            return Colors.white;
+                                          }
                                           return navyColor;
-                                        }
-                                        return Colors.grey[200]!;
-                                      },
-                                    ),
-                                    foregroundColor: MaterialStateProperty.resolveWith<Color>(
-                                      (Set<MaterialState> states) {
-                                        if (states.contains(MaterialState.selected)) {
-                                          return Colors.white;
-                                        }
-                                        return navyColor;
-                                      },
-                                    ),
+                                        }),
                                     shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
                                     ),
                                   ),
                                 ),
                               );
                             },
                           ),
-                          
+
                           const SizedBox(height: 24),
                           TextFormField(
                             controller: _kilometerController,
                             decoration: _buildInputDecoration(
-                                label: 'Kilometer Kendaraan',
-                                icon: Icons.speed_outlined),
+                              label: 'Kilometer Kendaraan',
+                              icon: Icons.speed_outlined,
+                            ),
                             keyboardType: TextInputType.number,
                             validator: (value) => AppValidators.validate(
-                                value, 'Kilometer Kendaraan'),
+                              value,
+                              'Kilometer Kendaraan',
+                            ),
                           ),
                           const SizedBox(height: 16),
                           BlocBuilder<KendaraanBloc, KendaraanState>(
@@ -372,22 +435,26 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text('Sisa BBM: ${state.sisaBBM.round()}%',
-                                      style: GoogleFonts.poppins(
-                                          color: Colors.grey[700],
-                                          fontWeight: FontWeight.w600)),
+                                  Text(
+                                    'Sisa BBM: ${state.sisaBBM.round()}%',
+                                    style: GoogleFonts.poppins(
+                                      color: Colors.grey[700],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                                   Slider(
-                                      value: state.sisaBBM, 
-                                      min: 0,
-                                      max: 100,
-                                      divisions: 100,
-                                      label: '${state.sisaBBM.round()}%',
-                                      activeColor: navyColor,
-                                      onChanged: (double value) {
-                                        context
-                                            .read<KendaraanBloc>()
-                                            .add(BbmChanged(bbmValue: value));
-                                      }),
+                                    value: state.sisaBBM,
+                                    min: 0,
+                                    max: 100,
+                                    divisions: 100,
+                                    label: '${state.sisaBBM.round()}%',
+                                    activeColor: navyColor,
+                                    onChanged: (double value) {
+                                      context.read<KendaraanBloc>().add(
+                                        BbmChanged(bbmValue: value),
+                                      );
+                                    },
+                                  ),
                                 ],
                               );
                             },
@@ -420,18 +487,21 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                       isLoading: _processingSlotIndexes.contains(3),
                     ),
                     const SizedBox(height: 12),
-                    _buildImagePickerList( // <-- TAMBAHAN WIDGET BARU
+                    _buildImagePickerList(
+                      // <-- TAMBAHAN WIDGET BARU
                       title: 'Foto Penanggung Jawab',
                       files: _fotoPenanggungJawab,
                       onAddPhoto: () => _pilihSumberGambar(4),
                       onDeletePhoto: (index) => _hapusFoto(4, index),
                       isLoading: _processingSlotIndexes.contains(4),
                     ),
-  
+
                     const SizedBox(height: 20),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 4.0),
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(8),
@@ -449,9 +519,10 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                             title: Text(
                               'Tambah Keterangan Lain-Lain',
                               style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF001f3f)),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: const Color(0xFF001f3f),
+                              ),
                             ),
                             value: _showKeteranganLain,
                             onChanged: (bool? newValue) {
@@ -469,7 +540,10 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                           if (_showKeteranganLain)
                             Padding(
                               padding: const EdgeInsets.only(
-                                  bottom: 12.0, left: 8.0, right: 8.0),
+                                bottom: 12.0,
+                                left: 8.0,
+                                right: 8.0,
+                              ),
                               child: TextFormField(
                                 controller: _keteranganLainController,
                                 decoration: _buildInputDecoration(
@@ -482,7 +556,7 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                         ],
                       ),
                     ),
-  
+
                     const SizedBox(height: 20),
                     BlocBuilder<KendaraanBloc, KendaraanState>(
                       builder: (context, state) {
@@ -495,14 +569,20 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                             backgroundColor: navyColor,
                             foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           child: isSaving
-                              ? const CircularProgressIndicator(color: Colors.white)
-                              : Text('SIMPAN DATA',
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : Text(
+                                  'SIMPAN DATA',
                                   style: GoogleFonts.poppins(
-                                      fontWeight: FontWeight.bold,
-                                      letterSpacing: 1)),
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1,
+                                  ),
+                                ),
                         );
                       },
                     ),
@@ -511,7 +591,7 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
               ),
             ),
           ),
-        ), 
+        ),
       ),
     );
   }
@@ -542,9 +622,10 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
           Text(
             title,
             style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: const Color(0xFF001f3f)),
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF001f3f),
+            ),
           ),
           const SizedBox(height: 4),
           Text(
@@ -596,8 +677,11 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
                             color: Colors.red,
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.close,
-                              color: Colors.white, size: 18),
+                          child: const Icon(
+                            Icons.close,
+                            color: Colors.white,
+                            size: 18,
+                          ),
                         ),
                       ),
                     ),
@@ -608,15 +692,18 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
           if (files.isNotEmpty) const SizedBox(height: 16),
           OutlinedButton.icon(
             icon: const Icon(Icons.add_a_photo_outlined),
-            label: Text('Tambah Foto',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.w500)),
+            label: Text(
+              'Tambah Foto',
+              style: GoogleFonts.poppins(fontWeight: FontWeight.w500),
+            ),
             onPressed: isLoading ? null : onAddPhoto,
             style: OutlinedButton.styleFrom(
               minimumSize: const Size(double.infinity, 50),
               foregroundColor: const Color(0xFF001f3f),
               side: const BorderSide(color: Color(0xFF001f3f)),
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8)),
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
           ),
           if (isLoading)
@@ -640,8 +727,11 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
         }
         if (state.status == KendaraanStatus.failure) {
           return const Center(
-              child: Text('Gagal memuat NOPOL',
-                  style: TextStyle(color: Colors.red)));
+            child: Text(
+              'Gagal memuat NOPOL',
+              style: TextStyle(color: Colors.red),
+            ),
+          );
         }
 
         return TypeAheadField<Armada>(
@@ -660,13 +750,14 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
               controller: controller,
               focusNode: focusNode,
               decoration: _buildInputDecoration(
-                  label: 'Nomor Polisi Kendaraan', icon: Icons.pin_outlined),
+                label: 'Nomor Polisi Kendaraan',
+                icon: Icons.pin_outlined,
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Mohon pilih nomor polisi kendaraan.";
                 }
-                final isValid =
-                    state.daftarArmada.any((a) => a.nopol == value);
+                final isValid = state.daftarArmada.any((a) => a.nopol == value);
                 if (!isValid) return "Pilih nomor polisi dari daftar.";
                 return null;
               },
@@ -674,15 +765,16 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
           },
           suggestionsCallback: (pattern) => state.daftarArmada
               .where(
-                  (a) => a.nopol.toLowerCase().contains(pattern.toLowerCase()))
+                (a) => a.nopol.toLowerCase().contains(pattern.toLowerCase()),
+              )
               .toList(),
-          itemBuilder: (context, armada) => ListTile(
-              title: Text(armada.nopol, style: GoogleFonts.poppins())),
+          itemBuilder: (context, armada) =>
+              ListTile(title: Text(armada.nopol, style: GoogleFonts.poppins())),
           onSelected: (armada) {
             _armadaController.text = armada.nopol;
-            context
-                .read<KendaraanBloc>()
-                .add(ArmadaChanged(armadaId: armada.id));
+            context.read<KendaraanBloc>().add(
+              ArmadaChanged(armadaId: armada.id),
+            );
 
             FocusScope.of(context).unfocus();
           },
@@ -702,8 +794,11 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
         }
         if (state.status == KendaraanStatus.failure) {
           return const Center(
-              child: Text('Gagal memuat Karyawan',
-                  style: TextStyle(color: Colors.red)));
+            child: Text(
+              'Gagal memuat Karyawan',
+              style: TextStyle(color: Colors.red),
+            ),
+          );
         }
 
         return TypeAheadField<Karyawan>(
@@ -722,36 +817,45 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
               controller: controller,
               focusNode: focusNode,
               decoration: _buildInputDecoration(
-                  label: 'Nama Karyawan', icon: Icons.person_outline),
+                label: 'Nama Karyawan',
+                icon: Icons.person_outline,
+              ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return "Mohon pilih nama karyawan.";
                 }
-                final isValid =
-                    state.daftarKaryawan.any((k) => k.nama == value);
+                final isValid = state.daftarKaryawan.any(
+                  (k) => k.nama == value,
+                );
                 if (!isValid) return "Pilih nama karyawan dari daftar.";
                 return null;
               },
             );
           },
           suggestionsCallback: (pattern) => state.daftarKaryawan
-              .where((k) =>
-                  k.nama.toLowerCase().contains(pattern.toLowerCase()) ||
-                  k.alias.toLowerCase().contains(pattern.toLowerCase()))
+              .where(
+                (k) =>
+                    k.nama.toLowerCase().contains(pattern.toLowerCase()) ||
+                    k.alias.toLowerCase().contains(pattern.toLowerCase()),
+              )
               .toList(),
           itemBuilder: (context, karyawan) => ListTile(
             title: Text(karyawan.nama, style: GoogleFonts.poppins()),
             subtitle: karyawan.alias.isNotEmpty
-                ? Text(karyawan.alias,
+                ? Text(
+                    karyawan.alias,
                     style: GoogleFonts.poppins(
-                        fontSize: 12, color: Colors.grey[600]))
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  )
                 : null,
           ),
           onSelected: (karyawan) {
             _karyawanController.text = karyawan.nama;
-            context
-                .read<KendaraanBloc>()
-                .add(KaryawanChanged(karyawanId: karyawan.id));
+            context.read<KendaraanBloc>().add(
+              KaryawanChanged(karyawanId: karyawan.id),
+            );
 
             FocusScope.of(context).unfocus();
           },
@@ -760,8 +864,10 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
     );
   }
 
-  InputDecoration _buildInputDecoration(
-      {required String label, required IconData icon}) {
+  InputDecoration _buildInputDecoration({
+    required String label,
+    required IconData icon,
+  }) {
     return InputDecoration(
       labelText: label,
       labelStyle: GoogleFonts.poppins(color: Colors.grey[700]),
@@ -769,11 +875,14 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
       prefixIcon: Icon(icon, color: Colors.grey[600]),
       filled: false,
       border: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[300]!)),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
       enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey[300]!)),
+        borderSide: BorderSide(color: Colors.grey[300]!),
+      ),
       focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Color(0xFF001f3f), width: 2)),
+        borderSide: BorderSide(color: Color(0xFF001f3f), width: 2),
+      ),
     );
   }
 }

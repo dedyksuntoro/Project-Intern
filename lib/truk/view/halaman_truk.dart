@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:image_picker/image_picker.dart';
@@ -162,6 +163,74 @@ class _TruckCheckScreenState extends State<TruckCheckScreen> {
   void _simpanData() {
     FocusScope.of(context).unfocus();
 
+    // --- MENCETAK JSON KETIKA DI TAP ---
+    final currentState = context.read<TrukBloc>().state;
+    final payloadJson = {
+      'armadaId': currentState.armadaTerpilih,
+      'sopirId': currentState.sopirTerpilih,
+      'statusPengecekan': _statusPengecekan,
+      'statusKernet': _statusKernet,
+      'namaKernet': _statusKernet == 'Ada' ? _namaKernetController.text : null,
+      'statusSTNK': _statusSTNK,
+      'stnkTanggal': (_statusSTNK != 'Tidak Ada' && _statusSTNK != '')
+          ? _stnkTanggalController.text
+          : '',
+      'statusKIR': _statusKIR,
+      'statusKIRBet': _statusKIRBet,
+      'kirTanggal': (_statusKIR != 'Tidak Ada' && _statusKIR != '')
+          ? _kirTanggalController.text
+          : '',
+      'kirTanggalBet': (_statusKIRBet != 'Tidak Ada' && _statusKIRBet != '')
+          ? _kirTanggalBetController.text
+          : '',
+      'noLambung': _noLambungController.text,
+      'kilometer': _kilometerController.text,
+      'bbm': _sisaBBM,
+      'statusKondisi': _statusKondisi,
+      'keteranganServis': _statusKondisi == 'Servis'
+          ? _keteranganServisController.text
+          : null,
+      'keteranganLain': _showKeteranganLain
+          ? _keteranganLainController.text
+          : null,
+      'foto_sim': _fotoSIM.map((f) => f.path).toList(),
+      'foto_truk_depan': _fotoTrukDepan.map((f) => f.path).toList(),
+      'foto_truk_samping': _fotoTrukSamping.map((f) => f.path).toList(),
+      'foto_truk_belakang': _fotoTrukBelakang.map((f) => f.path).toList(),
+      'foto_ban_serep': _fotoBanSerep.map((f) => f.path).toList(),
+      'foto_sopir_surat': _fotoSopirSurat.map((f) => f.path).toList(),
+      'foto_penanggung_jawab': _fotoPenanggungJawab.map((f) => f.path).toList(),
+    };
+    final jsonString = const JsonEncoder.withIndent('  ').convert(payloadJson);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('JSON Payload'),
+        content: SingleChildScrollView(
+          child: SelectableText(
+            jsonString,
+            style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Tutup'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _lanjutkanSimpan();
+            },
+            child: const Text('Lanjut Simpan'),
+          ),
+        ],
+      ),
+    );
+    return;
+  }
+
+  void _lanjutkanSimpan() {
     bool isFormValid = _formKey.currentState?.validate() ?? false;
 
     if (!isFormValid) {
@@ -252,7 +321,9 @@ class _TruckCheckScreenState extends State<TruckCheckScreen> {
         kirTanggalBet: (_statusKIRBet != 'Tidak Ada' && _statusKIRBet != '')
             ? _kirTanggalBetController.text
             : '',
-        noLambung: _noLambungController.text,
+        noLambung: (_statusKIRBet != 'Tidak Ada' && _statusKIRBet != '')
+            ? _noLambungController.text
+            : null,
         kilometer: _kilometerController.text,
         bbm: _sisaBBM,
         statusKondisi: _statusKondisi,

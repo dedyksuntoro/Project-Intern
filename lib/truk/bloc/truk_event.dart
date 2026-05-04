@@ -34,18 +34,18 @@ class TrukDataSubmitted extends TrukEvent {
   final String statusPengecekan;
   final String statusKernet;
   final String? namaKernet;
-  final String statusSTNK; 
+  final String statusSTNK;
   final String stnkTanggal;
-  final String statusKIR; 
+  final String statusKIR;
   final String statusKIRBet;
   final String kirTanggal;
   final String kirTanggalBet;
-  final String noLambung;
+  final String? noLambung;
   final String kilometer;
   final double bbm;
   final String statusKondisi;
   final String? keteranganServis;
-  final String? keteranganLain; 
+  final String? keteranganLain;
   final List<File?> attachments;
 
   const TrukDataSubmitted({
@@ -59,7 +59,7 @@ class TrukDataSubmitted extends TrukEvent {
     required this.statusKIRBet,
     required this.kirTanggal,
     required this.kirTanggalBet,
-    required this.noLambung,
+    this.noLambung,
     required this.kilometer,
     required this.bbm,
     required this.statusKondisi,
@@ -70,22 +70,22 @@ class TrukDataSubmitted extends TrukEvent {
 
   @override
   List<Object?> get props => [
-        namaSopir,
-        statusPengecekan,
-        statusKernet,
-        namaKernet,
-        statusSTNK,
-        stnkTanggal,
-        statusKIR,
-        statusKIRBet,
-        kirTanggal,
-        kirTanggalBet,
-        noLambung,
-        kilometer,
-        bbm,
-        statusKondisi,
-        keteranganServis,
-        keteranganLain, 
-        attachments
-      ];
+    namaSopir,
+    statusPengecekan,
+    statusKernet,
+    namaKernet,
+    statusSTNK,
+    stnkTanggal,
+    statusKIR,
+    statusKIRBet,
+    kirTanggal,
+    kirTanggalBet,
+    noLambung,
+    kilometer,
+    bbm,
+    statusKondisi,
+    keteranganServis,
+    keteranganLain,
+    attachments,
+  ];
 }
