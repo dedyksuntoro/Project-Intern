@@ -841,9 +841,9 @@ class __KendaraanCheckScreenState extends State<_KendaraanCheckScreen> {
               .toList(),
           itemBuilder: (context, karyawan) => ListTile(
             title: Text(karyawan.nama, style: GoogleFonts.poppins()),
-            subtitle: karyawan.alias.isNotEmpty
+            subtitle: karyawan.namaCabang.isNotEmpty
                 ? Text(
-                    karyawan.alias,
+                    'CABANG ${karyawan.namaCabang}',
                     style: GoogleFonts.poppins(
                       fontSize: 12,
                       color: Colors.grey[600],

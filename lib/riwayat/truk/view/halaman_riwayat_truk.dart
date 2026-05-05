@@ -411,7 +411,6 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
               const Divider(color: Colors.white24),
             ],
 
-            
             if (item.kirBet != null && item.kirBet!.isNotEmpty) ...[
               buildDetailRow(
                 icon: Icons.confirmation_number_outlined,
@@ -425,15 +424,15 @@ class _HalamanRiwayatTrukViewState extends State<_HalamanRiwayatTrukView> {
               buildDetailRow(
                 icon: Icons.assignment_turned_in_outlined,
                 title: 'Status KIR Bet',
-                value: _translateStatus(item.statusKir),
+                value: _translateStatus(item.statusKirBet),
               ),
               const Divider(color: Colors.white24),
             ],
-            if (item.kirTanggal != null) ...[
+            if (item.kirTanggalBet != null) ...[
               buildDetailRow(
                 icon: Icons.calendar_today,
                 title: 'Tanggal KIR Bet',
-                value: DateFormat('dd MMM yyyy').format(item.kirTanggal!),
+                value: DateFormat('dd MMM yyyy').format(item.kirTanggalBet!),
               ),
               const Divider(color: Colors.white24),
             ],

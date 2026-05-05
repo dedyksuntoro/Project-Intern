@@ -6,11 +6,13 @@ List<Karyawan> karyawanFromJson(String str) =>
 class Karyawan {
   final String id;
   final String nama;
+  final String namaCabang;
   final String alias;
 
   Karyawan({
     required this.id,
     required this.nama,
+    required this.namaCabang,
     required this.alias,
   });
 
@@ -19,9 +21,8 @@ class Karyawan {
       // menangani jika ada data null dari server
       id: json["id"]?.toString() ?? '',
       nama: json["nama"] ?? 'Tanpa Nama',
-      
-      
-      alias: json["alias"] ?? '', 
+      namaCabang: json["nama_cabang"] ?? '',
+      alias: json["alias"] ?? '',
     );
   }
 }
